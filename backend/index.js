@@ -1,150 +1,181 @@
 require('dotenv').config()
 const express = require('express')
-const path = require("path")
 const multer  = require('multer')
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors')
 const sharp = require('sharp')
 const fs = require('fs')
-let cloudinary = require('cloudinary').v2;
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec)
+let AWS = require("aws-sdk")
 
 const app = express()
 app.use(cors())
+const upload = multer()
 
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
+AWS.config.update({region: 'us-west-1'});
+const s3 = new AWS.S3({apiVersion: '2006-03-01'});
+
 
 // focus on performance later
 
 // limits
 // 4mb
 
-// sharp('0.jpg')
-//     .metadata()
-//     .then(({ width, height}) => {
-//         const aspectRatio = width / height
-//         let resizedHeight = 250
-//         let resizedWidth = 250
+const createThumbnailDimensions = (width, height) => {
+    const aspectRatio = width / height
+    let thumbnailHeight = 250
+    let thumbnailWidth = 250
 
-//         console.log('height', height)
-//         console.log('width', width)
-//         console.log('ratio:', aspectRatio)
+    // console.log('width', width)
+    // console.log('height', height)
+    // console.log('ratio:', aspectRatio)
 
-//         if(width > height) {
-//             resizedHeight = Math.floor(resizedHeight / aspectRatio)
-//             console.log('resizedHeight', resizedHeight)
-//         }
-//         else {
-//             resizedWidth = Math.floor(aspectRatio * resizedWidth)
-//             console.log('resizedWidth', resizedWidth)
-//         }
+    if(width > height) {
+        thumbnailHeight = Math.floor(thumbnailHeight / aspectRatio)
+        // console.log('thumbnailHeight', thumbnailHeight)
+    }
+    else {
+        thumbnailWidth = Math.floor(aspectRatio * thumbnailWidth)
+        // console.log('thumbnailWidth', thumbnailWidth)
+    }
 
-//         sharp('0.jpg')
-//             .resize(resizedWidth, resizedHeight)
-//             .toFile('0thumb.jpg')
-//             .then(info => {
-//                 console.log('info', info)
-//             })
-//             .catch(err => {
-//                 console.log('error occured')
-//             })
-//     })
-
-// combine get dimensions and thumbnail creation functions. return all info into an object
-const createThumbnail = (file) => {
-    console.log('file', file)
-    sharp(file.buffer)
-        .metadata()
-        .then(({ width, height }) => {
-            // logic here can be turned into getThumbnailDimensions
-            const aspectRatio = width / height
-            let resizedHeight = 250
-            let resizedWidth = 250
-
-            console.log('width', width)
-            console.log('height', height)
-            console.log('ratio:', aspectRatio)
-
-            if(width > height) {
-                resizedHeight = Math.floor(resizedHeight / aspectRatio)
-                console.log('resizedHeight', resizedHeight)
-            }
-            else {
-                resizedWidth = Math.floor(aspectRatio * resizedWidth)
-                console.log('resizedWidth', resizedWidth)
-            }
-
-            //end here for thumbnaildim
-
-            sharp(file.buffer)
-                .resize(resizedWidth, resizedHeight)
-                .toFile('thumb.jpg')
-                .then(info => {
-                    console.log('info', info)
-                })
-                .catch(err => {
-                    console.log('error occured')
-                })
-        })
-        .catch(err => {
-            console.log('error occured in processing fileBinary', err)
-        })
+    return { thumbnailHeight, thumbnailWidth }
 }
 
-const getDimensions = async (file) => {
-    const metadata = await sharp(file.buffer)
-                                .metadata()
-    const { height, width } = metadata
+// all thumbnails are 250x250 for now
+// combine get dimensions and thumbnail creation functions. return all info into an object
+const createImageThumbnail = async (buffer, id) => {
+    // console.log('buffer:', buffer)
+
+    const { width, height } = await sharp(buffer).metadata()
+    const { thumbnailHeight, thumbnailWidth } = createThumbnailDimensions(width, height)
+    const thumbnailBuffer = await sharp(buffer).resize(thumbnailWidth, thumbnailHeight).toBuffer()
+
+    return await uploadFile(thumbnailBuffer, id + 'thumb', 'jpg')
+}
+
+const createGifThumbnail = async (buffer, id) => {
+    const { width, height } = await sharp(buffer).metadata()
+    const { thumbnailHeight, thumbnailWidth } = createThumbnailDimensions(width, height)
+    const thumbnailBuffer = await sharp(buffer)
+        .jpeg()
+        .resize(thumbnailWidth, thumbnailHeight)
+        .toBuffer()
+
+    return await uploadFile(thumbnailBuffer, id + 'thumb', 'jpg')
+}
+
+const createVideoThumbnail = async ({ height, width }, id) => {
+    const { thumbnailHeight, thumbnailWidth } = createThumbnailDimensions(width, height)
+    const videoFile = `${id}.webm`
+    const videoThumbnail = `${id}thumb.jpg`
+
+    try {
+        await exec(`ffmpeg -y -i ${videoFile} -s ${thumbnailWidth}x${thumbnailHeight} -vf fps=1 ${videoThumbnail}`);
+    }
+    catch(err) {
+        console.error(err)
+    }
+
+    let fileStream = fs.createReadStream(videoThumbnail);
+    fileStream.on('error', function(err) {
+        console.log('File Error', err);
+    });
+    
+    let uploadParams = {Bucket: 'photoboardbucket', Key: '', Body: ''};
+    uploadParams.Body = fileStream;
+    uploadParams.Key = videoThumbnail;
+
+    const response = await s3.upload (uploadParams).promise();
+    // console.log('video thumbnail upload response:', response)
+
+    fs.unlink(videoFile, (err) => {
+        if (err) throw err;
+        console.log(`${videoFile} was deleted`);
+    })
+
+    fs.unlink(videoThumbnail, (err) => {
+        if (err) throw err;
+        console.log(`${videoThumbnail} was deleted`);
+    })
+
+    return response.Location
+}
+
+// pass extension, might need to use object for params
+// could use both for video and image
+const uploadFile = async (buffer, id, extension) => {
+    let uploadParams = {Bucket: 'photoboardbucket', Key: '', Body: ''};
+    // let filename = '.webm'; 
+    uploadParams.Body = buffer;
+    uploadParams.Key = id + '.' + extension;
+
+    const response = await s3.upload (uploadParams).promise();
+    // console.log('file upload response:', response)
+
+    return response.Location
+}
+
+const handleUpload = async (buffer, id, extension, filetype) => {
+    let dimensions = {}
+    const url = await uploadFile(buffer, id, extension)
+    let thumbnailURL = ""
+
+    if(filetype === "image") {
+        dimensions = await getImageDimensions(buffer)
+    }
+    else
+        dimensions = await getVideoDimensions(buffer, id)
+
+
+    if(filetype === "image" && extension !== "gif") {
+        thumbnailURL = await createImageThumbnail(buffer, id)
+    }
+    else if(filetype === "image" && extension === "gif") {
+        thumbnailURL = await createGifThumbnail(buffer, id)
+    }
+    else {
+        thumbnailURL = await createVideoThumbnail(dimensions, id)
+    }
+
+    return { url, thumbnailURL, dimensions }
+}
+
+const getImageDimensions = async (buffer) => {
+    const { height, width } = await sharp(buffer).metadata()
     return { height, width }
 }
 
-const cloudStoreRegImage = async (file) => {
-    console.log('trying upload')
+const getVideoDimensions = async(buffer, id) => {
+    fs.writeFileSync(`${id}.webm`, buffer)
+        
+    let vidDimensions = await exec(`ffprobe -v error -select_streams v -show_entries stream=width,height -of json=compact=1 ${id}.webm`)
+    vidDimensions = JSON.parse(vidDimensions.stdout)
+    const { width, height } = vidDimensions.streams[0]
+    // return can be a one liner with above i think
+    return { height, width }
+}
 
-    try {
-        return new Promise((resolve, reject) => {
+const generateFileData = async (file) => {
+    const filetype = file.mimetype.substring(0, 5)
+    const extension = file.mimetype.substring(6,)
+    const id = Date.now()
+    
+    const { url, thumbnailURL, dimensions } = await handleUpload(file.buffer, id, extension, filetype)
 
-            let stream = cloudinary.uploader.upload_stream(
-        
-              (error, result) => {
-        
-                if (result) {
-        
-                  resolve(result);
-        
-                } else {
-        
-                  reject(error);
-        
-                }
-        
-              }
-        
-            );
-        
-            fs.createReadStream(file.buffer).pipe(stream);
-        
-          });
-        // let cloudResponse = ''
-        // const response = await cloudinary.uploader.upload_stream(function(error, result) {
-        //         console.log(error);
-        //         console.log(result);
-        //         cloudResponse = result
-        //     })
-        
-        // let file_reader = fs.createReadStream(file.buffer).pipe(response);
-        // // use file_reader to read data? https://github.com/cloudinary/cloudinary_npm/issues/276
-        // // assigning to response should've updated cloudResponse maybe? no it wouldn't
-        // console.log('---cloud response', cloudResponse, '+++')
-        // console.log('--+response', file_reader, '+++')
-    }
-    catch(err) {
-        console.log(err)
+    // return thumbnail dimensions
+    return {
+        url,
+        thumbnailURL,
+        filename: file.originalname,
+        dimensions,
+        date: new Date(Date.now()),
+        filetype,
+        id
     }
 }
+
 
 const isValidMime = (mimetype) => {
     if(mimetype === "image/jpeg" || mimetype === "image/png" || mimetype === "image/gif" || mimetype === "video/webm")
@@ -152,49 +183,6 @@ const isValidMime = (mimetype) => {
     else 
         return false
 }
-
-// const DIR = './public/'
-
-// const storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//     cb(null, 'uploads/')
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, Date.now() + '-' +file.originalname )
-//   }
-// })
-
-// const upload = multer({
-//     storage: storage,
-//     fileFilter: (req, file, cb) => {
-//         if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
-//             cb(null, true)
-//         } else {
-//             cb(null, false)
-//             return cb(new Error('Only .png, .jpg and .jpeg format allowed!'))
-//         }
-//     }
-// })
-
-// find out if the other way from the docs work
-
-// const upload = multer({ storage: storage }).single('file')
-
-// app.post('/upload',function(req, res) {
-     
-//     upload(req, res, function (err) {
-//            if (err instanceof multer.MulterError) {
-//                return res.status(500).json(err)
-//            } else if (err) {
-//                return res.status(500).json(err)
-//            }
-//       return res.status(200).send(req.file)
-
-//     })
-
-// });
-
-const upload = multer()
 
 // two things, get thumbnail from webm and dimensions
 // might just use fluentffmpeg
@@ -205,33 +193,8 @@ const upload = multer()
 app.post('/upload', upload.single('file'), async function (req, res, next) {
     // console.time('uploadSpeed')
     if(isValidMime(req.file.mimetype)) {
-        // might need to get dimensions another way for vid
-        if(req.file.mimetype === "video/webm") {
-            res.json({ 
-                url: req.file.originalname,
-                thumbnailURL: req.file.originalname,
-                filename: req.file.originalname,
-                date: new Date(Date.now()),
-                filetype: 'video',
-                id: uuidv4()
-            })
-        }
-        else {
-            // const waitForUpload = await cloudStoreRegImage(req.file)
-            // console.log('file at upload', req.file)
-            // console.log('upload response:', waitForUpload)
-            // console.timeEnd('uploadSpeed')
-
-            res.json({ 
-                url: req.file.originalname,
-                thumbnailURL: req.file.originalname,
-                filename: req.file.originalname,
-                dimensions: await getDimensions(req.file),
-                date: new Date(Date.now()),
-                filetype: 'image',
-                id: uuidv4()
-            })
-        }
+        const fileData = await generateFileData(req.file)
+        res.json(fileData)
     }
 
     else 

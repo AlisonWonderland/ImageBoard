@@ -14,14 +14,8 @@ const ThreadForm = ({ threads, setThreads }) => {
 
         postService.upload(formData)
             .then(response => {
-                // console.log(response)
-                // console.log(response.data.url)
-                // console.log(response.data.filetype)
-                // this will concat url in final
                 console.log('thread data', response.data)
                 setThreads(threads.concat({ ...response.data, 
-                    url: 'test_pics/' + response.data.url, 
-                    thumbnailURL: 'test_pics/0thumb.jpg',
                     submissionText,
                     title
                 }))

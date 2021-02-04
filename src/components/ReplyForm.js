@@ -6,9 +6,9 @@ import postService from '../services/post'
 // work with images adn then just with text
 const ReplyForm = ({ posts, setPosts, threadID, showForm, setShowForm }) => {
     const [ file, setFile ] = useState(null)
-    // const [ hide, setHide ] = useState(showForm)
     const [ replyText, setReplyText ] = useState('')
 
+    // normally we're going to want the reply text to be sent to the backend
     const handleSubmission = (e) => {
         e.preventDefault();
         const formData = new FormData();
@@ -16,23 +16,11 @@ const ReplyForm = ({ posts, setPosts, threadID, showForm, setShowForm }) => {
 
         postService.upload(formData)
             .then(response => {
-                // // console.log(response)
-                // // console.log(response.data.url)
-                // // console.log(response.data.filetype)
-                // // this will concat url in final
-                // console.log('thread data', response.data)
-
-                // in the future no need for url, thumbnail url update
                 setPosts(posts.concat({ ...response.data, 
-                    url: 'test_pics/' + response.data.url, 
-                    thumbnailURL: 'test_pics/' + response.data.url[0] + 'thumb' + response.data.url[-4],
                     replyText
                 }))
-                // console.log('Threads updated after upload')
                 setReplyText('')
                 setShowForm(!showForm)
-                // setHide(!hide)
-                // // setFile(null)
             })
             .catch((error) => {
                 alert('Upload error occured')
@@ -40,19 +28,10 @@ const ReplyForm = ({ posts, setPosts, threadID, showForm, setShowForm }) => {
             });
     }
 
-    // unnecessary
-    // const handleClick = () => {
-    //     setHide(!hide)
-    // }
-
     const handleClose = () => {
         setReplyText('')
         setShowForm(!showForm)
     }
-
-    // const handleTitleChange = (e) => {
-    //     setTitle(e.target.value)
-    // }
 
     const handleReplyTextChange = (e) => {
         setReplyText(e.target.value)

@@ -38,9 +38,9 @@ const Thread = ({ thread }) => {
     const [ showFullSize, setShowFullSize ] = useState(false)
     const { windowHeight, windowWidth } = useWindowDimensions();
 
-    console.log('-----------')
-    console.log('win width:', windowWidth)
-    console.log('win height:', windowHeight)
+    // console.log('-----------')
+    // console.log('win width:', windowWidth)
+    // console.log('win height:', windowHeight)
 
     const formatDate = (threadDate) => {
         let localDate = new Date(threadDate).toLocaleDateString(undefined, {
@@ -65,20 +65,26 @@ const Thread = ({ thread }) => {
 
     const handleThumbnailClick = (e) => {
         e.preventDefault()
-        setShowThumbnail(!showThumbnail)
-        setShowFullSize(!showFullSize)
+
+        if(thread.filetype === "video") {
+            setShowThumbnail(false)
+            setShowFullSize(true)
+        }
+        else {
+            setShowThumbnail(!showThumbnail)
+            setShowFullSize(!showFullSize)
+        }
     }
 
-    // test
     const getMaxDimensions = (dimensions) => {
         const aspectRatio = dimensions.width / dimensions.height
         const maxWidth = windowWidth - 70
         let maxHeight = 0
 
-        console.log('dim width:', dimensions.width)
-        console.log('dim height:', dimensions.height)
-        console.log('win width:', windowWidth)
-        console.log('win height:', windowHeight)
+        // console.log('dim width:', dimensions.width)
+        // console.log('dim height:', dimensions.height)
+        // console.log('win width:', windowWidth)
+        // console.log('win height:', windowHeight)
 
 
         if(dimensions.width <= maxWidth)
@@ -86,16 +92,24 @@ const Thread = ({ thread }) => {
         else
             maxHeight = maxHeight / aspectRatio
 
-        console.log('ratio:', aspectRatio)
-        console.log('width:', maxWidth)
-        console.log('height:', maxHeight)
+        // console.log('ratio:', aspectRatio)
+        // console.log('width:', maxWidth)
+        // console.log('height:', maxHeight)
 
         return { maxWidth, maxHeight }
     }
 
-    const fullSizeImg = showFullSize
-        ? <img className="thumbnail-exp" src={thread.url} alt="" style={getMaxDimensions(thread.dimensions)}></img>
-        : null
+    // should be a state
+    let fullSizeContent = null
+
+    if(showFullSize)
+        if(thread.filetype === "image")
+            fullSizeContent = <img className="thumbnail-exp" src={thread.url} alt="" style={getMaxDimensions(thread.dimensions)}></img>
+        else
+            fullSizeContent =   <video controls loop autoPlay muted className="vid-exp">
+                                    <source src={thread.url} type="video/webm" />
+                                    Your browser does not support the video tag.
+                                </video>
 
     // implement logic for reply form
     return (
@@ -111,7 +125,7 @@ const Thread = ({ thread }) => {
                             </div>
                             <a href={thread.url} onClick={handleThumbnailClick}>
                                 <img className="thumbnail" src={thread.thumbnailURL} alt=""style={{display: showThumbnail ? "": "none"}} />
-                                {fullSizeImg}
+                                {fullSizeContent}
                             </a>
                         </div>
                         <div className="postInfo">
