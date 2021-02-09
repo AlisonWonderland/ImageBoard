@@ -1,4 +1,4 @@
-const config = require('./utils/config')
+const config = require('./config/config')
 const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
 const express = require('express')
@@ -20,7 +20,7 @@ app.use(cors())
 app.use(express.json())
 app.use(middleware.requestLogger)
 
-app.use('/api/blogs', threadsRouter)
+app.use('/api/threads', threadsRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)

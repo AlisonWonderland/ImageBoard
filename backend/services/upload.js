@@ -1,5 +1,3 @@
-// const { uploadToS3 } = require('./aws');
-
 const awsService = require('./aws')
 const sharp = require('sharp')
 const fs = require('fs')
@@ -9,7 +7,7 @@ const exec = promisify(require('child_process').exec)
 // use this in controllers?
 // setDimensions?
 class UploadService {
-    constructor(filetype, extension, id, buffer, postType,filename) {
+    constructor({ filetype, extension, id, buffer, postType, filename }) {
         this.filetype = filetype
         this.extension = extension
         this.id = id
@@ -38,12 +36,11 @@ class UploadService {
                 [ dimensions, thumbnail125URL ] = await this.createVideoThumbnail()
         }
     
+        // extension needed? extension: this.extension
         let data = {
             url: url,
             filetype: this.filetype,
-            extension: this.extension,
             id: this.id,
-            postType: this.postType,
             dimensions: dimensions,
             date: new Date(Date.now()),
             filename: this.filename
@@ -184,7 +181,7 @@ class UploadService {
             console.log(`${videoThumbnail125} was deleted`);
         })
 
-        if(videoThumbnail250 === "") {
+        if(videoThumbnail250 !== "") {
             fs.unlink(videoThumbnail250, (err) => {
                 if (err) throw err;
                 console.log(`${videoThumbnail250} was deleted`);

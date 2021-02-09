@@ -4,7 +4,7 @@ const uniqueValidator = require('mongoose-unique-validator')
 mongoose.set('useFindAndModify', false)
 
 const threadSchema = new mongoose.Schema({
-    title: {
+    text: {
         type:String,
         required: true
     },
@@ -12,16 +12,17 @@ const threadSchema = new mongoose.Schema({
         type:String,
         required: true
     },
-    thumbnailURL250: {
+    thumbnail250URL: {
         type:String,
         required: true
     },
-    thumbnailURL125: {
+    thumbnail125URL: {
         type:String,
         required: true
     },
     dimensions: {
-        type:String,
+        type: Map,
+        of: String,
         required: true
     },
     date: {
@@ -29,6 +30,14 @@ const threadSchema = new mongoose.Schema({
         required: true
     },
     filetype: {
+        type:String,
+        required: true
+    },
+    filename: {
+        type:String,
+        required: true
+    },
+    id: {
         type:String,
         required: true
     },
