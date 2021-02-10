@@ -45,10 +45,16 @@ const threadSchema = new mongoose.Schema({
         type:Number,
         required: true
     },
+    comments: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Comment'
+        }
+    ],
     replies: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Reply'
+            ref: 'Comment'
         }
     ]
 })

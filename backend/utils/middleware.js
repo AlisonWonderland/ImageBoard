@@ -8,26 +8,38 @@ const requestLogger = (request, response, next) => {
     next()
 }
 
+// thread will always include a picture
 const validMimeType = (req, res, next) => {
-    const mimetype = req.file.mimetype
-    if(mimetype === "image/jpeg" || mimetype === "image/png" || mimetype === "image/gif" || mimetype === "video/webm")
+    const file = req.file ? req.file : req.files[0]
+
+    if(!file && req.body.postType !== "thread") {
+        console.log('no file')
         next()
-    else 
-        res.status(400).send({ error: 'Invalid file format' })
+    }
+    else {
+        const mimetype = file.mimetype
+        if(mimetype === "image/jpeg" || mimetype === "image/png" || mimetype === "image/gif" || mimetype === "video/webm")
+            next()
+        else 
+            res.status(400).send({ error: 'Invalid file format' })
+    }
+
 
 }
 
 const initUploadData = (req, res, next) => {
-    if(req.file) {
+    const file = req.file ? req.file : req.files[0]
+
+    if(file) {
         req.body = {
             ...req.body,
             uploadData: {
-                filetype: req.file.mimetype.substring(0, 5),
-                extension: req.file.mimetype.substring(6,),
+                filetype: file.mimetype.substring(0, 5),
+                extension: file.mimetype.substring(6,),
                 id: Date.now(),
-                buffer: req.file.buffer,
+                buffer: file.buffer,
                 postType: req.body.postType,
-                filename: req.file.originalname,
+                filename: file.originalname,
             }
         }
     }

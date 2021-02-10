@@ -3,17 +3,14 @@ const uniqueValidator = require('mongoose-unique-validator')
 
 mongoose.set('useFindAndModify', false)
 
-const replySchema = new mongoose.Schema({
-    replyText: {
+const commentSchema = new mongoose.Schema({
+    text: {
         type:String,
     },
     url: {
         type:String,
     },
-    thumbnailURL250: {
-        type:String,
-    },
-    thumbnailURL125: {
+    thumbnail125URL: {
         type:String,
     },
     dimensions: {
@@ -30,17 +27,20 @@ const replySchema = new mongoose.Schema({
         type:Number,
         required: true
     },
+    parent: {
+        type:Number,
+    },
     replies: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Reply'
+            ref: 'Comment'
         }
     ]
 })
 
-replySchema.plugin(uniqueValidator)
+commentSchema.plugin(uniqueValidator)
 
-replySchema.set('toJSON', {
+commentSchema.set('toJSON', {
     transform: (document, returnedObject) => {
         returnedObject.id = returnedObject._id.toString()
         delete returnedObject._id
@@ -49,6 +49,6 @@ replySchema.set('toJSON', {
     }
 })
 
-const Reply = mongoose.model('Reply', replySchema)
+const Comment = mongoose.model('Comment', commentSchema)
 
-module.exports = Reply
+module.exports = Comment

@@ -42,7 +42,6 @@ class UploadService {
             filetype: this.filetype,
             id: this.id,
             dimensions: dimensions,
-            date: new Date(Date.now()),
             filename: this.filename
         }
 

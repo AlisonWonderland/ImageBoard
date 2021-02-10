@@ -7,6 +7,7 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 
 const threadsRouter = require('./controllers/threads')
+const commentRouter = require('./controllers/comment')
 
 const mongoUrl = config.MONGODB_URI
 
@@ -21,6 +22,7 @@ app.use(express.json())
 app.use(middleware.requestLogger)
 
 app.use('/api/threads', threadsRouter)
+app.use('/api/comment', commentRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
