@@ -23,11 +23,11 @@ replyRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, re
     if(req.body.postType === "reply") {
         if(req.body.parentType === "thread") {
             parent = await Thread.find({postNum: req.body.parent})
-            parent = parent[0]
         }
         else {
             parent = await Comment.find({postNum: req.body.parent})
         }
+        parent = parent[0]
     }
 
     let fileData = {}
@@ -44,8 +44,10 @@ replyRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, re
     })
 
     const savedComment = await newComment.save()
-    parent.replies = parent.replies.concat(savedComment._id)
-    await parent.save()
+    if(req.body.parentType) {
+        parent.replies = parent.replies.concat(savedComment._id)
+        await parent.save()
+    }
 
     res.status(201).json(savedComment)
 })

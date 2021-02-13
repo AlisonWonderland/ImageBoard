@@ -14,7 +14,8 @@ const commentSchema = new mongoose.Schema({
         type:String,
     },
     dimensions: {
-        type:String,
+        type: Map,
+        of: String,
     },
     date: {
         type:Date,

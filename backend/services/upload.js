@@ -1,3 +1,4 @@
+const logger = require('../utils/logger')
 const awsService = require('./aws')
 const sharp = require('sharp')
 const fs = require('fs')
@@ -126,7 +127,7 @@ class UploadService {
      async createVideoThumbnail() {
         const videoFile = `${this.id}.webm`
         const videoThumbnail125 = `${this.id}thumb125.jpg`
-        const videoThumbnail250 = `${this.id}thumb250.jpg`
+        let videoThumbnail250 = ''
     
         const dimensions = await this.getVideoDimensions(this.buffer, videoFile)
         const t125 = this.createThumbnailDimensions(dimensions, 125, 125)
@@ -141,6 +142,7 @@ class UploadService {
 
         if(this.postType === "thread") {
             try {
+                videoThumbnail250 = `${this.id}thumb250.jpg`
                 const t250 = this.createThumbnailDimensions(dimensions, 250, 250)
                 await exec(`ffmpeg -y -i ${videoFile} -s ${t250.thumbnailWidth}x${t250.thumbnailHeight} -vf fps=1 ${videoThumbnail250}`);    
             }
@@ -172,18 +174,18 @@ class UploadService {
     deleteVideoFiles(videoFile, videoThumbnail125, videoThumbnail250) {
         fs.unlink(videoFile, (err) => {
             if (err) throw err;
-            console.log(`${videoFile} was deleted`);
+            logger.info(`${videoFile} was deleted`);
         })
     
         fs.unlink(videoThumbnail125, (err) => {
             if (err) throw err;
-            console.log(`${videoThumbnail125} was deleted`);
+            logger.info(`${videoThumbnail125} was deleted`);
         })
 
         if(videoThumbnail250 !== "") {
             fs.unlink(videoThumbnail250, (err) => {
                 if (err) throw err;
-                console.log(`${videoThumbnail250} was deleted`);
+                logger.info(`${videoThumbnail250} was deleted`);
             })
         }
     }

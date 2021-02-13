@@ -35,4 +35,10 @@ threadsRouter.post('/', upload.single('file'), validMimeType, initUploadData, as
     res.status(201).json(savedThread)
 })
 
+threadsRouter.delete('/', async(req, res, next) => {
+    await Thread.deleteMany({})
+
+    res.status(200)
+})
+
 module.exports = threadsRouter
