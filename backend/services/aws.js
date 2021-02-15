@@ -10,8 +10,13 @@ const s3 = new AWS.S3({
 
 
 module.exports = {
-    uploadToS3: async function(file, filename, extension) {
-        let uploadParams = {Bucket: 'photoboardbucket', Key: '', Body: ''};
+    uploadToS3: async function(file, filename, extension, mimetype) {
+        let uploadParams = {
+            Bucket: 'photoboardbucket', 
+            Key: '', 
+            Body: '', 
+            ContentType: mimetype
+        };
         uploadParams.Body = file;
         uploadParams.Key = filename + '.' + extension;
     

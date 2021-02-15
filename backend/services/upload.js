@@ -5,12 +5,11 @@ const fs = require('fs')
 const { promisify } = require('util');
 const exec = promisify(require('child_process').exec)
 
-// use this in controllers?
-// setDimensions?
 class UploadService {
-    constructor({ filetype, extension, id, buffer, postType, filename }) {
-        this.filetype = filetype
-        this.extension = extension
+    constructor({ mimetype, id, buffer, postType, filename }) {
+        this.mimetype = mimetype
+        this.filetype = mimetype.substring(0, 5)
+        this.extension = mimetype.substring(6,)
         this.id = id
         this.buffer = buffer
         this.postType = postType
@@ -23,7 +22,6 @@ class UploadService {
         let thumbnail125URL = ""
         let dimensions = {}
 
-        // return dimensions
         if(this.postType === "thread") {
             if(this.filetype === "image")
                 [ dimensions, thumbnail125URL, thumbnail250URL ] = await this.createImageThumbnail()
@@ -57,7 +55,7 @@ class UploadService {
     }
 
     async uploadFile(file, filename, extension) {
-       return await awsService.uploadToS3(file, filename, extension)
+       return await awsService.uploadToS3(file, filename, extension, this.mimetype)
     }
 
     async getImageDimensions(sharpBuffer) {
@@ -155,7 +153,7 @@ class UploadService {
         fileStream.on('error', function(err) {
             console.log('File Error', err);
         });
-        const thumbnail125URL = await awsService.uploadToS3(fileStream, `${this.id}thumb125`, 'jpg')
+        const thumbnail125URL = await this.uploadFile(fileStream, `${this.id}thumb125`, 'jpg')
 
         let thumbnail250URL = ""
         if(this.postType === "thread") {
@@ -163,7 +161,7 @@ class UploadService {
             fileStream.on('error', function(err) {
                 console.log('File Error', err);
             });
-            thumbnail250URL = await awsService.uploadToS3(fileStream, `${this.id}thumb250`, 'jpg')
+            thumbnail250URL = await this.uploadFile(fileStream, `${this.id}thumb250`, 'jpg')
         }
 
         this.deleteVideoFiles(videoFile, videoThumbnail125, videoThumbnail250)

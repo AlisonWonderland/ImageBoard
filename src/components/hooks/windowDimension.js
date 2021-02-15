@@ -20,6 +20,6 @@ export default function useWindowDimensions() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  console.log('from hook', windowDimensions)
+//   console.log('from hook', windowDimensions)
   return windowDimensions;
 }

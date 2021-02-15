@@ -34,8 +34,7 @@ const initUploadData = (req, res, next) => {
         req.body = {
             ...req.body,
             uploadData: {
-                filetype: file.mimetype.substring(0, 5),
-                extension: file.mimetype.substring(6,),
+                mimetype: file.mimetype,
                 id: Date.now(),
                 buffer: file.buffer,
                 postType: req.body.postType,

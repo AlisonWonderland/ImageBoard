@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react'
-// import imageService from './services/image'
-// import Posts from './components/Posts'
 import Navbar from './components/Navbar'
 import ThreadForm from './components/ThreadForm'
 import Threads from './components/Threads'
-// import ReplyForm from './components/ReplyForm'
 
 import postService from './services/post'
 
@@ -12,8 +9,6 @@ import './App.css';
 
 // todo
 /// clean code then style
-// try out imgur api
-// get image size https://stackoverflow.com/questions/12539918/get-the-width-and-height-of-an-image-in-node-js
 
 // create thread button and form
 // alternate between thread view and catalog view
@@ -49,11 +44,8 @@ import './App.css';
 
 
 function App() {
-    const [ file, setFile ] = useState(null)
-    const [ posts, setPosts ] = useState([])
     const [ threads, setThreads ] = useState([])
     
-    console.log('file', file)
     console.log('threads', threads)
     
     const getThreadsHook = () => {
@@ -68,27 +60,6 @@ function App() {
         fetchThreads()
     }
 
-    // const onFormSubmit = (e) => {
-    //     e.preventDefault();
-    //     const formData = new FormData();
-    //     formData.append('file', file);
-
-    //     imageService.upload(formData)
-    //         .then(response => {
-    //             setPosts(posts.concat({ ...response.data, url: 'test_pics/' + response.data.url}))
-    //             console.log('posts updated after upload')
-    //             // setFile(null)
-    //         })
-    //         .catch((error) => {
-    //             alert('Upload error occured')
-    //             console.log('====error:', error)
-    //         });
-    // }
-
-    // const onChange = (e) => {
-    //     console.log('changed called')
-    //     setFile(e.target.files[0]);
-    // }
 
     useEffect(getThreadsHook, [])
 

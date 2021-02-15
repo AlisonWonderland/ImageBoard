@@ -4,7 +4,6 @@ import postService from '../services/post'
 const ThreadForm = ({ threads, setThreads }) => {
     const [ file, setFile ] = useState(null)
     const [ hide, setHide ] = useState(true)
-    // const [ title, setTitle ] = useState('')
     const [ submissionText, setSubmissionText ] = useState('')
 
     const handleSubmission = (e) => {
@@ -18,8 +17,7 @@ const ThreadForm = ({ threads, setThreads }) => {
             .then(response => {
                 console.log('thread data', response)
                 setThreads(threads.concat(response.data))
-                console.log('Threads updated after upload')
-                // setTitle('')
+                
                 setSubmissionText('')
                 setHide(!hide)
                 // setFile(null)
@@ -33,10 +31,6 @@ const ThreadForm = ({ threads, setThreads }) => {
     const handleClick = () => {
         setHide(!hide)
     }
-
-    // const handleTitleChange = (e) => {
-    //     setTitle(e.target.value)
-    // }
 
     const handleSubmissionTextChange = (e) => {
         setSubmissionText(e.target.value)
