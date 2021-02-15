@@ -1,16 +1,31 @@
 import axios from 'axios'
-const baseUrl = 'http://localhost:3001/upload'
+const baseUrl = 'http://localhost:3001/api'
 
-const upload = (formData) => {
+const getThreads = async () => {
+    return await axios.get(`${baseUrl}/threads`)
+}
+
+const upload = (formData, postType) => {
     const config = {
         headers: {
             'content-type': 'multipart/form-data'
         }
     }
-    // for (var p of formData) {
-    //     console.log('data', p);
-    // }
-    return axios.post(baseUrl, formData, config)
+    let url = ""
+
+    if(postType === "reply") 
+        url = `${baseUrl}/comment`
+    else if(postType === "thread")
+        url = `${baseUrl}/${postType}s`
+    else
+        url = `${baseUrl}/${postType}`
+
+    console.log('thre url:', url)
+    
+    for (var p of formData) {
+        console.log('data', p);
+    }
+    return axios.post(url, formData, config)
             .then((response) => {
                 return response
             }).catch((error) => {
@@ -18,4 +33,8 @@ const upload = (formData) => {
             });
 }
 
-export default { upload }
+export default 
+{ 
+    getThreads,
+    upload 
+}
