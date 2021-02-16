@@ -5,6 +5,14 @@ const getThreads = async () => {
     return await axios.get(`${baseUrl}/threads`)
 }
 
+const getComments = async (postNum) => {
+    return await axios.get(`${baseUrl}/threads/${postNum}/comments`)
+}
+
+const getReplies = async (postNum) => {
+    return await axios.get(`${baseUrl}/threads/${postNum}/replies`)
+}
+
 const upload = (formData, postType) => {
     const config = {
         headers: {
@@ -36,5 +44,7 @@ const upload = (formData, postType) => {
 export default 
 { 
     getThreads,
+    getComments,
+    getReplies,
     upload 
 }

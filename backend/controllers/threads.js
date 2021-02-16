@@ -13,15 +13,29 @@ threadsRouter.get('/', async(req, res) => {
     res.json(threads)
 })
 
-// might need service here
+threadsRouter.get('/:threadNum/replies', async(req, res) => {
+    const threadNum = req.params.threadNum
+    const searchedThread = await Thread.findOne({postNum: threadNum})
+    const threadReplies = await Comment.find({"_id": {"$in": searchedThread.replies}})
+
+    res.status(200).send(threadReplies)
+})
+
+threadsRouter.get('/:threadNum/comments', async(req, res) => {
+    const threadNum = req.params.threadNum
+    const searchedThread = await Thread.findOne({postNum: threadNum})
+    const threadComments = await Comment.find({"_id": {"$in": searchedThread.comments}})
+
+    res.status(200).send(threadComments)
+})
+
+
 threadsRouter.post('/', upload.single('file'), validMimeType, initUploadData, async(req, res, next) => {
     const numDocs = await Thread.countDocuments({})
     const numComments = await Comment.countDocuments({})
-    console.log('num docs:', numDocs)
    
     const uService = new uploadService(req.body.uploadData)
     const fileData = await uService.generateFileData()
-    // console.log(fileData)
     
     const thread = new Thread({
         ...fileData,

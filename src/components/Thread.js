@@ -5,15 +5,61 @@ import File from './File'
 import PostText from './PostText'
 import PostInfo from './PostInfo'
 
+import postService from '../services/post'
+
 // store replies here
 const Thread = ({ thread }) => {
     const [ showForm, setShowForm ] = useState(false)
-    const [ posts, setPosts ] = useState([])
+    const [ replies, setReplies ] = useState([])
+    const [ comments, setComments ] = useState([])
+
+    // const getRepliesHook = () => {
+    //     const fetchThreads = async() => {
+    //         const fetchThreads = await postService.getThreads()
+    //         const fetchedThreads = fetchThreads.data
+            
+    //         setReplies(fetchedThreads)
+    //         console.log('threads reset')
+    //         // console.log('threads:', fetchThreads)
+    //     }
+    //     fetchThreads()
+    // }
+
+
+    // useEffect(getRepliesHook, [])
+
+    const getCommentsHook = () => {
+        const fetchComments = async() => {
+            let fetchedComments = await postService.getComments(thread.postNum)
+            fetchedComments = fetchedComments.data
+            
+            console.log('comments:', fetchedComments)
+            setComments(fetchedComments)
+            console.log('comments reset')
+        }
+        fetchComments()
+    }
+
+
+    useEffect(getCommentsHook, [])
+
+
 
     return (
         <>
             <div className="thread">
-                {/* <ReplyForm posts={posts} setPosts={setPosts} threadID={thread.id} showForm={showForm} setShowForm={setShowForm}></ReplyForm> */}
+                <ReplyForm 
+                    parent={thread.postNum} 
+                    parentType={'thread'} 
+                    isReply={true} 
+                    replies={replies} 
+                    setReplies={setReplies} 
+                    comments={comments} 
+                    setComments={setComments}
+                    showForm={showForm} 
+                    setShowForm={setShowForm}
+                >
+                </ReplyForm>
 
                 <div className="postContainer opContainer">
                     <div id={thread.postNum} className="post op">
@@ -23,7 +69,7 @@ const Thread = ({ thread }) => {
                     </div>
                 </div>
 
-                {/* <Posts posts={posts}></Posts> */}
+                <Posts posts={comments}></Posts>
             </div>
             <hr/>
         </>

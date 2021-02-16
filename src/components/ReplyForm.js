@@ -1,26 +1,28 @@
 import React, { useState } from 'react'
 import postService from '../services/post'
+import {generateFormData} from './helpers'
 
-// add reply endpoint/route
-// files aren't needed
-// work with images adn then just with text
-const ReplyForm = ({ posts, setPosts, threadID, showForm, setShowForm }) => {
+const ReplyForm = ({ parent, parentType, isReply, replies, setReplies, comments, setComments, showForm, setShowForm }) => {
     const [ file, setFile ] = useState(null)
     const [ replyText, setReplyText ] = useState('')
 
-    // normally we're going to want the reply text to be sent to the backend
     const handleSubmission = (e) => {
         e.preventDefault();
-        const formData = new FormData();
-        formData.append('file', file);
 
-        postService.upload(formData)
-            .then(response => {
-                setPosts(posts.concat({ ...response.data, 
-                    replyText
-                }))
+        if(file === null && replyText === '') {
+            alert('File or comment needed for submission')
+            return
+        }
+
+        const formData = generateFormData(file, replyText, isReply, parent, parentType);
+
+        postService.upload(formData, isReply ? 'reply' : 'comment')
+        .then(response => {
+                // setReplies(replies.concat(response.data))
+                setComments(comments.concat(response.data))
                 setReplyText('')
                 setShowForm(!showForm)
+                e.target.value = null
             })
             .catch((error) => {
                 alert('Upload error occured')
@@ -44,13 +46,13 @@ const ReplyForm = ({ posts, setPosts, threadID, showForm, setShowForm }) => {
     return (
         <div className="replyFormContainer" style={{display: showForm ? "": "none"}}>
             <form onSubmit={handleSubmission}>
-                <span className="replyHeader">Reply to Thread No. {threadID} <img alt="X" src="./assets/cross.png" className="closeFormBtn" onClick={handleClose}></img></span>
+                <span className="replyHeader">Reply to Thread No. {parent} <img alt="X" src="./assets/cross.png" className="closeFormBtn" onClick={handleClose}></img></span>
                 <br/>
                 <textarea name="replyText" placeholder="Comment" id="" cols="50" rows="10" value={replyText} onChange={handleReplyTextChange}></textarea>
                 <br/>
                 <div className=""></div>
-                <input name="file" type="file" onChange={handleFileChange}/>
-                <input type="submit" value="Create Thread"/>
+                <input name="file" type="file" onChange={handleFileChange} key={Date.now()}/>
+                <input type="submit" value="Submit comment"/>
             </form>
         </div>
     )

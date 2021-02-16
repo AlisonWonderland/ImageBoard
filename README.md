@@ -1,9 +1,10 @@
 # ImageBoard
 
 ### todo
+* Implement replies list for thread and comment
+* create comment button? but remove it for the thread view.
 * going to need to maxheight for lazy load
 * fitting content into screen
-* refactor reply form to handle replies and comments
 
 ### Performance notes
 * Uploading a file to s3 as a stream is faster than uploading it as a buffer.
