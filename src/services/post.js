@@ -9,8 +9,8 @@ const getComments = async (postNum) => {
     return await axios.get(`${baseUrl}/threads/${postNum}/comments`)
 }
 
-const getReplies = async (postNum) => {
-    return await axios.get(`${baseUrl}/threads/${postNum}/replies`)
+const getReplies = async (postNum, postType) => {
+    return await axios.get(`${baseUrl}/${postType}/${postNum}/replies`)
 }
 
 const upload = (formData, postType) => {

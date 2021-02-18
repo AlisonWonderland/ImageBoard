@@ -13,17 +13,17 @@ const Thread = ({ thread }) => {
     const [ replies, setReplies ] = useState([])
     const [ comments, setComments ] = useState([])
 
-    // const getRepliesHook = () => {
-    //     const fetchThreads = async() => {
-    //         const fetchThreads = await postService.getThreads()
-    //         const fetchedThreads = fetchThreads.data
+    const getRepliesHook = () => {
+        const fetchReplies = async() => {
+            const fetchReplies = await postService.getReplies(thread.postNum, 'threads')
+            const fetchedReplies = fetchReplies.data.map(reply => reply.postNum)
             
-    //         setReplies(fetchedThreads)
-    //         console.log('threads reset')
-    //         // console.log('threads:', fetchThreads)
-    //     }
-    //     fetchThreads()
-    // }
+            // console.log('replies:', fetchedReplies)
+            setReplies(fetchedReplies)
+            // console.log('threads reset')
+        }
+        fetchReplies()
+    }
 
 
     // useEffect(getRepliesHook, [])
@@ -33,18 +33,20 @@ const Thread = ({ thread }) => {
             let fetchedComments = await postService.getComments(thread.postNum)
             fetchedComments = fetchedComments.data
             
-            console.log('comments:', fetchedComments)
+            // console.log('comments:', fetchedComments)
             setComments(fetchedComments)
-            console.log('comments reset')
+            // console.log('comments reset')
         }
         fetchComments()
     }
 
+    // console.log('refreshing?')
 
     useEffect(getCommentsHook, [])
+    useEffect(getRepliesHook, [])
 
 
-
+    // pass thread num in comment form as well
     return (
         <>
             <div className="thread">
@@ -64,7 +66,7 @@ const Thread = ({ thread }) => {
                 <div className="postContainer opContainer">
                     <div id={thread.postNum} className="post op">
                         <File url={thread.url} filename={thread.filename} dimensions={thread.dimensions} thumbnailURL={thread.thumbnail250URL} filetype={thread.filetype}></File>
-                        <PostInfo date={thread.date} postNum={thread.postNum} showForm={showForm} setShowForm={setShowForm}></PostInfo>
+                        <PostInfo date={thread.date} postNum={thread.postNum} showForm={showForm} setShowForm={setShowForm} replies={replies}></PostInfo>
                         <PostText text={thread.text}></PostText>
                     </div>
                 </div>

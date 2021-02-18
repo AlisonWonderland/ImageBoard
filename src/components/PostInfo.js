@@ -21,6 +21,7 @@ const PostInfo = (postInfo) => {
         localDate = localDate.replace(/\s/g, '');
         return localDate + ' '
     }
+    // console.log('replies in postinfo:', postInfo.replies, 'and num:', postInfo.postNum)
 
     return (
         <div className="postInfo">
@@ -28,8 +29,8 @@ const PostInfo = (postInfo) => {
             {formatDate(postInfo.date)} 
             <span className="postNum"><a href={`#${postInfo.postNum}`}> No. </a><a href={`#${postInfo.postNum}`} onClick={handleReplyClick}>{postInfo.postNum}</a> &nbsp;</span> 
             [<a href="posturl">Reply</a>] &gt; 
-            {/* replies */}
-            <a href="#thread"> &gt;&gt;010010101</a>
+            
+            <ReplyList replies={postInfo.replies}></ReplyList>
         </div>
     )
 }

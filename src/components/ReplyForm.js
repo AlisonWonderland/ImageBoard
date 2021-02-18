@@ -18,7 +18,7 @@ const ReplyForm = ({ parent, parentType, isReply, replies, setReplies, comments,
 
         postService.upload(formData, isReply ? 'reply' : 'comment')
         .then(response => {
-                // setReplies(replies.concat(response.data))
+                setReplies(replies.concat(response.data.postNum))
                 setComments(comments.concat(response.data))
                 setReplyText('')
                 setShowForm(!showForm)

@@ -28,7 +28,7 @@ const commentSchema = new mongoose.Schema({
         type:Number,
         required: true
     },
-    parent: {
+    parentThread: {
         type:Number,
     },
     replies: [

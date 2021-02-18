@@ -118,6 +118,10 @@ div.post div.file {
     margin-bottom: 5px;
 }
 
+.replyLink {
+    padding: 0 2px 0px 2px;
+}
+
 blockquote.postMessage {
     margin: 13.33px 40px;
 }
