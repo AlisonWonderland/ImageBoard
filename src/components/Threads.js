@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react'
 import Thread from './Thread'
 
 const Threads = ({ threads }) => {

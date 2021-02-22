@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import File from './File'
 import PostText from './PostText'
 import PostInfo from './PostInfo'
@@ -6,19 +6,21 @@ import PostInfo from './PostInfo'
 import postService from '../services/post'
 
 const Post = ({ post }) => {
-    const [ showForm, setShowForm ] = useState(false)
     const [ replies, setReplies ] = useState([])
 
     const getRepliesHook = () => {
+        let isMounted = true
         const fetchReplies = async() => {
             const fetchReplies = await postService.getReplies(post.postNum, 'comment')
             const fetchedReplies = fetchReplies.data.map(reply => reply.postNum)
             
             // console.log('replies:', fetchedReplies)
-            setReplies(fetchedReplies)
+            if(isMounted)
+                setReplies(fetchedReplies)
             // console.log('threads reset')
         }
         fetchReplies()
+        return () => { isMounted = false}
     }
 
     useEffect(getRepliesHook, [])
@@ -32,7 +34,7 @@ const Post = ({ post }) => {
         <div id={post.postNum} className="postContainer replyContainer">
             <div className="sideArrows">&gt;&gt;</div>
             <div className="post reply">
-                <PostInfo date={post.date} postNum={post.postNum} showForm={showForm} setShowForm={setShowForm} replies={replies}></PostInfo>
+                <PostInfo date={post.date} postNum={post.postNum} replies={replies} postType={'comment'}></PostInfo>
                 {fileElement}
                 <PostText text={post.text}></PostText>
             </div>

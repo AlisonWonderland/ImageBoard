@@ -1,9 +1,12 @@
+import { useContext } from 'react'
 import ReplyList from './ReplyList'
+import { FormContext } from './contexts'
 
 const PostInfo = (postInfo) => {
+    const { handleFormOpen } = useContext(FormContext)
+    
     const handleReplyClick = (e) => {
-        e.preventDefault()
-        postInfo.setShowForm(!postInfo.showForm)
+        handleFormOpen(postInfo.postNum, postInfo.postType, true)
     }
 
     const formatDate = (threadDate) => {

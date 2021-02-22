@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import postService from '../services/post'
 
 const ThreadForm = ({ threads, setThreads }) => {

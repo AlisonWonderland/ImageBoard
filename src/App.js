@@ -46,7 +46,7 @@ import './App.css';
 function App() {
     const [ threads, setThreads ] = useState([])
     
-    console.log('threads', threads)
+    // console.log('threads', threads)
     
     const getThreadsHook = () => {
         const fetchThreads = async() => {

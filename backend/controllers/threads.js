@@ -1,10 +1,12 @@
+const config = require('../config/config')
+
 const threadsRouter = require('express').Router()
 const { validMimeType, initUploadData } = require('../utils/middleware')
 const Comment = require('../models/Comment')
 const Thread = require('../models/Thread')
+
 const uploadService = require('../services/upload')
 const multer  = require('multer')
-
 const upload = multer()
 
 threadsRouter.get('/', async(req, res) => {
@@ -50,9 +52,15 @@ threadsRouter.post('/', upload.single('file'), validMimeType, initUploadData, as
 })
 
 threadsRouter.delete('/', async(req, res, next) => {
-    await Thread.deleteMany({})
-
-    res.status(200)
+        // console.log(req)
+        console.log(config.PIN)
+        if(req.body.pin === config.PIN) {
+            await Thread.deleteMany({})
+            console.log('threads deletion')
+            res.status(200).end()
+        }
+    
+        res.status(401).end()
 })
 
 module.exports = threadsRouter

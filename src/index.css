@@ -124,6 +124,11 @@ div.post div.file {
 
 blockquote.postMessage {
     margin: 13.33px 40px;
+    white-space: pre-wrap;
+}
+
+span.quote {
+    color: #789922;
 }
 
 div.reply {

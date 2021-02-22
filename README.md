@@ -1,9 +1,6 @@
 # ImageBoard
 
 ### todo
-* need to pass in thread parent for comment reply
-* Implement replies list for thread and comment
-* create comment button? but remove it for the thread view.
 * going to need to maxheight for lazy load
 * fitting content into screen
 

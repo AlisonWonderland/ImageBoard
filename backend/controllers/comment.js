@@ -1,4 +1,6 @@
-const replyRouter = require('express').Router()
+const config = require('../config/config')
+
+const commentRouter = require('express').Router()
 const { validMimeType, initUploadData } = require('../utils/middleware')
 const Thread = require('../models/Thread')
 const Comment = require('../models/Comment')
@@ -9,13 +11,13 @@ const multer  = require('multer')
 const upload = multer()
 
 
-replyRouter.get('/', async(req, res) => {
+commentRouter.get('/', async(req, res) => {
     const comments = await Comment.find({})
         .populate('replies', { text: 1, postNum: 1 })
     res.json(comments)
 })
 
-replyRouter.get('/:commentNum/replies', async(req, res) => {
+commentRouter.get('/:commentNum/replies', async(req, res) => {
     const commentNum = req.params.commentNum
     const searchedComment = await Comment.findOne({postNum: commentNum})
     const commentReplies = await Comment.find({"_id": {"$in": searchedComment.replies}})
@@ -23,21 +25,20 @@ replyRouter.get('/:commentNum/replies', async(req, res) => {
     res.status(200).send(commentReplies)
 })
 
-replyRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, res) => {
+commentRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, res) => {
     const numDocs = await Thread.countDocuments({})
     const numComments = await Comment.countDocuments({})
     let parent = {}
     let parentThreadNum = 0
 
     if(req.body.parentType === "thread") {
-        parent = await Thread.find({postNum: req.body.parent})
+        parent = await Thread.findOne({postNum: req.body.parent})
         parentThreadNum = req.body.parent
     }
     else {
-        parent = await Comment.find({postNum: req.body.parent})
-        parentThreadNum = parent[0].parentThread
+        parent = await Comment.findOne({postNum: req.body.parent})
+        parentThreadNum = parent.parentThread
     }
-    parent = parent[0]
 
     let fileData = {}
     if(req.files.length > 0) {
@@ -59,9 +60,7 @@ replyRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, re
         await parent.save()
 
         if(req.body.parentType === "comment") {
-            let parentThread = await Thread.find({postNum: parentThreadNum})
-            parentThread = parentThread[0]
-            
+            let parentThread = await Thread.findOne({postNum: parentThreadNum})
             parentThread.comments = parentThread.comments.concat(savedComment._id)
             await parentThread.save()    
         }
@@ -74,4 +73,17 @@ replyRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, re
     res.status(201).json(savedComment)
 })
 
-module.exports = replyRouter
+commentRouter.delete('/', async(req, res, next) => {
+    // console.log(req)
+    console.log(config.PIN)
+    if(req.body.pin === config.PIN) {
+        await Comment.deleteMany({})
+        console.log('comments deletion')
+        res.status(200).end()
+    }
+
+    res.status(401).end()
+})
+
+
+module.exports = commentRouter

@@ -1,10 +1,22 @@
-import React, { useState } from 'react'
+import { useState, useContext } from 'react'
 import postService from '../services/post'
 import {generateFormData} from './helpers'
+import { FormContext } from './contexts'
 
-const ReplyForm = ({ parent, parentType, isReply, replies, setReplies, comments, setComments, showForm, setShowForm }) => {
+import Textarea from './Textarea'
+
+const ReplyForm = ({getCommentsHook, getRepliesHook}) => {
+    const { parent, 
+        parentType, 
+        isReply,
+        showForm, 
+        setShowForm,
+        replyText,
+        setReplyText
+    } = useContext(FormContext)
+
     const [ file, setFile ] = useState(null)
-    const [ replyText, setReplyText ] = useState('')
+    // const [ replyText, setReplyText ] = useState(`>>${parent} \n`)
 
     const handleSubmission = (e) => {
         e.preventDefault();
@@ -18,8 +30,8 @@ const ReplyForm = ({ parent, parentType, isReply, replies, setReplies, comments,
 
         postService.upload(formData, isReply ? 'reply' : 'comment')
         .then(response => {
-                setReplies(replies.concat(response.data.postNum))
-                setComments(comments.concat(response.data))
+                getCommentsHook()
+                getRepliesHook()
                 setReplyText('')
                 setShowForm(!showForm)
                 e.target.value = null
@@ -32,23 +44,25 @@ const ReplyForm = ({ parent, parentType, isReply, replies, setReplies, comments,
 
     const handleClose = () => {
         setReplyText('')
-        setShowForm(!showForm)
+        setShowForm(false)
     }
 
-    const handleReplyTextChange = (e) => {
-        setReplyText(e.target.value)
-    }
+    // const handleReplyTextChange = (e) => {
+    //     setReplyText(e.target.value)
+    // }
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0])
     }
+
+    // console.log(replyText)
 
     return (
         <div className="replyFormContainer" style={{display: showForm ? "": "none"}}>
             <form onSubmit={handleSubmission}>
                 <span className="replyHeader">Reply to Thread No. {parent} <img alt="X" src="./assets/cross.png" className="closeFormBtn" onClick={handleClose}></img></span>
                 <br/>
-                <textarea name="replyText" placeholder="Comment" id="" cols="50" rows="10" value={replyText} onChange={handleReplyTextChange}></textarea>
+                <Textarea></Textarea>
                 <br/>
                 <div className=""></div>
                 <input name="file" type="file" onChange={handleFileChange} key={Date.now()}/>

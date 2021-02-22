@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import {useState} from 'react'
 import useWindowDimensions from './hooks/windowDimension'
 
 const File = (fileInfo) => {
