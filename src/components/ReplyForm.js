@@ -5,7 +5,7 @@ import { FormContext } from './contexts'
 
 import Textarea from './Textarea'
 
-const ReplyForm = ({getCommentsHook, getRepliesHook}) => {
+const ReplyForm = ({getCommentsHook, getRepliesHook, getThreadDataHook}) => {
     const { parent, 
         parentType, 
         isReply,
@@ -32,6 +32,7 @@ const ReplyForm = ({getCommentsHook, getRepliesHook}) => {
         .then(response => {
                 getCommentsHook()
                 getRepliesHook()
+                getThreadDataHook()
                 setReplyText('')
                 setShowForm(!showForm)
                 e.target.value = null
@@ -54,6 +55,8 @@ const ReplyForm = ({getCommentsHook, getRepliesHook}) => {
     const handleFileChange = (e) => {
         setFile(e.target.files[0])
     }
+
+    console.log('fired up here?')
 
     // console.log(replyText)
 

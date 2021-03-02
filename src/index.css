@@ -11,6 +11,22 @@ body {
   font-size: 13.33px;
 }
 
+/* html {
+    margin: 0px;
+    height: 100%;
+    max-width: 100%;
+ }
+ 
+ body {
+    margin: 0px;
+    min-height: 100%;
+    max-width: 100%;
+} */
+
+#root {
+    height: 100%;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -175,4 +191,45 @@ div.reply {
 
 textarea {
     width: 100%;
+}
+
+.row {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    padding: 25px 0px 25px 0px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.row > *{
+    padding: 0px 15px 0px 15px;
+}
+
+.commentLink {
+    font-size: 20px;
+}
+
+.miniThreads {
+    height: 100%;
+    max-width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.miniThreads > .miniThread {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    width: 25%;
+    height: 25%;
+    margin-bottom: 50px;
+}
+
+.textPreview {
+
 }

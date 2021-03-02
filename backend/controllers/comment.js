@@ -41,9 +41,11 @@ commentRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, 
     }
 
     let fileData = {}
+    let hasImage = false
     if(req.files.length > 0) {
         const uService = new uploadService(req.body.uploadData)
         fileData = await uService.generateFileData()
+        hasImage = true
     }
 
     const newComment = new Comment({
@@ -51,7 +53,8 @@ commentRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, 
         text: req.body.text,
         date: new Date(Date.now()),
         postNum: numDocs + numComments + 1,
-        parentThread: parentThreadNum
+        parentThread: parentThreadNum,
+        hasImage
     })
 
     const savedComment = await newComment.save()
@@ -59,14 +62,22 @@ commentRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, 
         parent.replies = parent.replies.concat(savedComment._id)
         await parent.save()
 
+        // need to attach reply to the parent threads comments
         if(req.body.parentType === "comment") {
             let parentThread = await Thread.findOne({postNum: parentThreadNum})
             parentThread.comments = parentThread.comments.concat(savedComment._id)
+            parentThread.numComments += 1
+            if(hasImage)
+                parentThread.numImages += 1
+    
             await parentThread.save()    
         }
     }
     if(req.body.parentType === 'thread') {
         parent.comments = parent.comments.concat(savedComment._id)
+        parent.numComments += 1
+        if(hasImage)
+            parent.numImages += 1
         await parent.save()
     }
 

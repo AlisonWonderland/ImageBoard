@@ -3,6 +3,7 @@
 ### todo
 * going to need to maxheight for lazy load
 * fitting content into screen
+* Refactoring/cleaning
 
 ### Performance notes
 * Uploading a file to s3 as a stream is faster than uploading it as a buffer.

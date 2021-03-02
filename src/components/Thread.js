@@ -4,8 +4,7 @@ import Posts from './Posts'
 import File from './File'
 import PostText from './PostText'
 import PostInfo from './PostInfo'
-import CommentLink from './CommentLink'
-
+import NavRow from './NavRow'
 import { FormContextProvider } from './contexts'
 
 import postService from '../services/post'
@@ -13,6 +12,9 @@ import postService from '../services/post'
 const Thread = ({ thread }) => {
     const [ replies, setReplies ] = useState([])
     const [ comments, setComments ] = useState([])
+    const [ data, setData ] = useState({})
+
+    console.log('thread from full:', thread)
 
     const getRepliesHook = () => {
         const fetchReplies = async() => {
@@ -38,8 +40,21 @@ const Thread = ({ thread }) => {
         fetchComments()
     }
 
-    useEffect(getCommentsHook, [])
-    useEffect(getRepliesHook, [])
+    const getThreadDataHook = () => {
+        const fetchData = async() => {
+            let fetchedData = await postService.getThreadData(thread.postNum)
+            fetchedData = fetchedData.data
+
+            setData(fetchedData)
+        }
+        fetchData()
+    }
+
+    useEffect(getCommentsHook, [thread.postNum])
+    useEffect(getRepliesHook, [thread.postNum])
+    useEffect(getThreadDataHook, [thread.postNum])
+
+    console.log('thread rerendered?')
 
     return (
         <>
@@ -49,7 +64,7 @@ const Thread = ({ thread }) => {
                     parent={thread.postNum}
                     parentType={'thread'}
                 >
-
+                    <NavRow threadData={data} type="top"></NavRow>
                     <div className="postContainer opContainer">
                         <div id={thread.postNum} className="post op">
                             <File url={thread.url} filename={thread.filename} dimensions={thread.dimensions} thumbnailURL={thread.thumbnail250URL} filetype={thread.filetype}></File>
@@ -58,10 +73,10 @@ const Thread = ({ thread }) => {
                         </div>
                     </div>
 
-                    <ReplyForm getCommentsHook={getCommentsHook} getRepliesHook={getRepliesHook}></ReplyForm>
+                    <ReplyForm getCommentsHook={getCommentsHook} getRepliesHook={getRepliesHook} getThreadDataHook={getThreadDataHook}></ReplyForm>
                     <Posts posts={comments}></Posts>
                     {/* this will have to go in some footer */}
-                    <CommentLink></CommentLink>
+                    <NavRow threadData={data} type="bot"></NavRow>
                 </FormContextProvider>
 
             </div>

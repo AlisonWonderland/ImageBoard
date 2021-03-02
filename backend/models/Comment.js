@@ -28,6 +28,9 @@ const commentSchema = new mongoose.Schema({
         type:Number,
         required: true
     },
+    hasImage: {
+        type:Boolean,
+    },
     parentThread: {
         type:Number,
     },

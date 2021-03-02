@@ -45,6 +45,14 @@ const threadSchema = new mongoose.Schema({
         type:Number,
         required: true
     },
+    numComments: {
+        type: Number,
+        default: 0
+    },
+    numImages: {
+        type: Number,
+        default: 0
+    },
     comments: [
         {
             type: mongoose.Schema.Types.ObjectId,

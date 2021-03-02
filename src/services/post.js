@@ -5,6 +5,10 @@ const getThreads = async () => {
     return await axios.get(`${baseUrl}/threads`)
 }
 
+const getRepliesToComments = async (postNum) => {
+    return await axios.get(`${baseUrl}/threads/${postNum}/repliesToComments`)
+}
+
 const getComments = async (postNum) => {
     return await axios.get(`${baseUrl}/threads/${postNum}/comments`)
 }
@@ -12,6 +16,15 @@ const getComments = async (postNum) => {
 const getReplies = async (postNum, postType) => {
     return await axios.get(`${baseUrl}/${postType}/${postNum}/replies`)
 }
+
+const getThreadData = async(threadNum) => {
+    return await axios.get(`${baseUrl}/threads/${threadNum}/data`)
+}
+
+const getThreadsData = async() => {
+    return await axios.get(`${baseUrl}/threads/catalogThreads`)
+}
+
 
 const upload = (formData, postType) => {
     const config = {
@@ -46,5 +59,7 @@ export default
     getThreads,
     getComments,
     getReplies,
+    getThreadData,
+    getThreadsData,
     upload 
 }

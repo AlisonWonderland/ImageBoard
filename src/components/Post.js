@@ -23,7 +23,7 @@ const Post = ({ post }) => {
         return () => { isMounted = false}
     }
 
-    useEffect(getRepliesHook, [])
+    useEffect(getRepliesHook, [post.postNum])
 
     const fileElement = post.url === undefined ?
         <></>

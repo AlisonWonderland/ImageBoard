@@ -1,32 +1,25 @@
 import { useState } from 'react'
+import {
+  Link
+} from "react-router-dom";
 
 // add settings link
 
 const Navbar = () => {
-    const [ isHomePage, setIsHomePage ] = useState(true)
-
-    let page = ""
-    isHomePage ? page = "Gallery"
-    : page = "Home"
-
-    const handlePageChange = () => {
-        setIsHomePage(!isHomePage)
-    }
-
     return (
-        <div className="navbar">
-            <ul className="nav">
-                <li>
-                    <a href="localhost:3000" id="home" className="nav-link">/KPG/ - KPOP Photoboard</a>
-                </li>
-                <li>
-                    <a href="localhost:3000" className="nav-link" onClick={handlePageChange}>{page}</a>
-                </li>
-            </ul>
-            <form>
-                <input type="text" size="50" id="search"></input>
-            </form>
-        </div>
+            <div className="navbar" id="top">
+                <ul className="nav">
+                    <li>
+                        <Link id="home" className="nav-link" to="/">Imageboard</Link>
+                    </li>
+                    <li>
+                        <Link className="nav-link" to="/Catalog">Catalog</Link>
+                    </li>
+                </ul>
+                <form>
+                    <input type="text" size="50" id="search"></input>
+                </form>
+            </div>
     )
 }
 

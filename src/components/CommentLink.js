@@ -1,15 +1,20 @@
-import { useContext } from 'react'
+import React, { useContext } from 'react'
 import { FormContext } from './contexts'
 
 const CommentLink = () => {
     const { handleFormOpen, parentThread } = useContext(FormContext)
 
-    const handleClick = () => {
+    const handleClick = (e) => {
+        e.preventDefault();
         handleFormOpen(parentThread, 'thread', false)
     }
 
+    console.log('checking')
+
     return (
-        <a href="#" onClick={handleClick}>Post a comment</a>
+            <span>
+                [ <a href="#" onClick={handleClick}>Post a comment</a> ]
+            </span>
     )
 }
 

@@ -5,6 +5,7 @@ export const Context = createContext({});
 
 export const Provider = props => {
     // Initial values are obtained from the props
+    console.log('context fired up')
     const {
         parentThread,
         parent : initialParent,
@@ -26,12 +27,10 @@ export const Provider = props => {
         
         if(replyText === '' && isReply)
             setReplyText(`>>${parentNum}\n`)
-        else if(replyText !== '' && isReply)
-            setReplyText(replyText + `\n>>${parentNum}\n`)
 
         setShowForm(true)
     }
-  
+    console.log(parentThread)
     // Make the context object:
     const formContext = {
         parentThread,
