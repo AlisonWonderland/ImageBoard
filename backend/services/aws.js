@@ -15,7 +15,8 @@ module.exports = {
             Bucket: 'photoboardbucket', 
             Key: '', 
             Body: '', 
-            ContentType: mimetype
+            ContentType: mimetype,
+            CacheControl: 'public, max-age=3600'
         };
         uploadParams.Body = file;
         uploadParams.Key = filename + '.' + extension;

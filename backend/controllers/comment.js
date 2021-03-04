@@ -1,23 +1,21 @@
-const config = require('../config/config')
-
 const commentRouter = require('express').Router()
-const { validMimeType, initUploadData } = require('../utils/middleware')
+const { memcachedMiddleware, validMimeType, initUploadData } = require('../utils/middleware')
 const Thread = require('../models/Thread')
 const Comment = require('../models/Comment')
+const config = require('../config/config')
+
+const { upload } = require('../utils/generator')
+const { updateCache } = require('../utils/cache')
 
 const uploadService = require('../services/upload')
-const multer  = require('multer')
 
-const upload = multer()
-
-
-commentRouter.get('/', async(req, res) => {
+commentRouter.get('/', memcachedMiddleware(6), async(req, res) => {
     const comments = await Comment.find({})
         .populate('replies', { text: 1, postNum: 1 })
     res.json(comments)
 })
 
-commentRouter.get('/:commentNum/replies', async(req, res) => {
+commentRouter.get('/:commentNum/replies', memcachedMiddleware(2), async(req, res) => {
     const commentNum = req.params.commentNum
     const searchedComment = await Comment.findOne({postNum: commentNum})
     const commentReplies = await Comment.find({"_id": {"$in": searchedComment.replies}})
@@ -62,6 +60,9 @@ commentRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, 
         parent.replies = parent.replies.concat(savedComment._id)
         await parent.save()
 
+        await updateCache(parent.replies, req.body.parentType, req.body.parent, 'replies')
+        // memcached.set()
+
         // need to attach reply to the parent threads comments
         if(req.body.parentType === "comment") {
             let parentThread = await Thread.findOne({postNum: parentThreadNum})
@@ -69,7 +70,9 @@ commentRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, 
             parentThread.numComments += 1
             if(hasImage)
                 parentThread.numImages += 1
-    
+            
+            await updateCache(parentThread.comments, 'thread', parentThreadNum, 'comments')
+
             await parentThread.save()    
         }
     }
@@ -78,6 +81,9 @@ commentRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, 
         parent.numComments += 1
         if(hasImage)
             parent.numImages += 1
+
+        await updateCache(parent.comments, req.body.parentType, req.body.parent, 'comments')
+
         await parent.save()
     }
 
@@ -85,7 +91,6 @@ commentRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, 
 })
 
 commentRouter.delete('/', async(req, res, next) => {
-    // console.log(req)
     console.log(config.PIN)
     if(req.body.pin === config.PIN) {
         await Comment.deleteMany({})

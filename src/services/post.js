@@ -1,12 +1,13 @@
 import axios from 'axios'
 const baseUrl = 'http://localhost:3001/api'
+const threadApiURL = 'http://localhost:3001/api/threads'
 
 const getThreads = async () => {
     return await axios.get(`${baseUrl}/threads`)
 }
 
-const getRepliesToComments = async (postNum) => {
-    return await axios.get(`${baseUrl}/threads/${postNum}/repliesToComments`)
+const getThread = async (postNum) => {
+    return await axios.get(`${baseUrl}/threads/${postNum}`)
 }
 
 const getComments = async (postNum) => {
@@ -57,6 +58,7 @@ const upload = (formData, postType) => {
 export default 
 { 
     getThreads,
+    getThread,
     getComments,
     getReplies,
     getThreadData,

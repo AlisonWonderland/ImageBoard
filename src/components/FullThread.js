@@ -1,21 +1,35 @@
+import React, { useState, useEffect } from 'react'
 import {
     useParams
 } from "react-router-dom";
 
 import Thread from './Thread'
+import postService from '../services/post'
 
-const FullThread = ({ threads }) => {
+const FullThread = () => {
     let { threadID } = useParams();
+    const [ thread, setThread ] = useState({})
 
-    let matchedThread = {}
-    for(let i = 0; i < threads.length; ++i) {
-        if(threads[i].postNum == threadID)
-            matchedThread = threads[i]
+    const getThreadHook = () => {
+        const fetchThread = async() => {
+            const fetchThread = await postService.getThread(threadID)
+            const fetchedThread = fetchThread.data
+            
+            setThread(fetchedThread)
+        }
+        fetchThread()
+
     }
+
+    useEffect(getThreadHook, [threadID])
 
     return (
         <>
-            <Thread thread={matchedThread}></Thread>
+            {
+                thread.postNum === undefined ? 
+                <></>
+                : <Thread thread={thread}></Thread>
+            }
         </>
     )
 }

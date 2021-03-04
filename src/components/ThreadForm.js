@@ -40,6 +40,8 @@ const ThreadForm = ({ threads, setThreads }) => {
         setFile(e.target.files[0])
     }
 
+    console.log('thread form being generated')
+
     return (
         <div className="threadFormContainer">
             <form style={{display: hide ? "none": ""}} onSubmit={handleSubmission}>

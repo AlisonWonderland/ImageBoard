@@ -9,8 +9,6 @@ const CommentLink = () => {
         handleFormOpen(parentThread, 'thread', false)
     }
 
-    console.log('checking')
-
     return (
             <span>
                 [ <a href="#" onClick={handleClick}>Post a comment</a> ]

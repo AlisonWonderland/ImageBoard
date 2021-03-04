@@ -1,21 +1,21 @@
-const config = require('../config/config')
-
 const threadsRouter = require('express').Router()
-const { validMimeType, initUploadData } = require('../utils/middleware')
+const { memcachedMiddleware, validMimeType, initUploadData } = require('../utils/middleware')
 const Comment = require('../models/Comment')
 const Thread = require('../models/Thread')
+const config = require('../config/config')
 
 const uploadService = require('../services/upload')
-const multer  = require('multer')
-const upload = multer()
 
-threadsRouter.get('/', async(req, res) => {
+const { upload } = require('../utils/generator')
+
+// this probably wont be called as often as the others. so caching it for 60 seconds
+threadsRouter.get('/', memcachedMiddleware(6), async(req, res) => {
     const threads = await Thread.find({})
         .populate('replies', { text: 1, postNum: 1 })
     res.json(threads)
 })
 
-threadsRouter.get('/:threadNum/replies', async(req, res) => {
+threadsRouter.get('/:threadNum/replies', memcachedMiddleware(2), async(req, res) => {
     const threadNum = req.params.threadNum
     const searchedThread = await Thread.findOne({postNum: threadNum})
     const threadReplies = await Comment.find({"_id": {"$in": searchedThread.replies}})
@@ -23,7 +23,7 @@ threadsRouter.get('/:threadNum/replies', async(req, res) => {
     res.status(200).send(threadReplies)
 })
 
-threadsRouter.get('/:threadNum/data', async(req, res) => {
+threadsRouter.get('/:threadNum/data', memcachedMiddleware(2), async(req, res) => {
     let data = {}
     const thread = await Thread.findOne({postNum: req.params.threadNum})
     data.numComments =  thread.numComments
@@ -34,7 +34,7 @@ threadsRouter.get('/:threadNum/data', async(req, res) => {
     res.json(data)
 })
 
-threadsRouter.get('/:threadNum/comments', async(req, res) => {
+threadsRouter.get('/:threadNum/comments', memcachedMiddleware(2), async(req, res) => {
     const threadNum = req.params.threadNum
     const searchedThread = await Thread.findOne({postNum: threadNum})
     const threadComments = await Comment.find({"_id": {"$in": searchedThread.comments}})
@@ -42,18 +42,18 @@ threadsRouter.get('/:threadNum/comments', async(req, res) => {
     res.status(200).send(threadComments)
 })
 
-threadsRouter.get('/:threadNum/repliesToComments', async(req, res) => {
-    const threadNum = req.params.threadNum
-    const searchedThread = await Thread.findOne({postNum: threadNum})
-    const threadComments = await Comment.find({"_id": {"$in": searchedThread.comments}})
-
-    res.status(200).send(threadComments)
-})
-
-threadsRouter.get('/catalogThreads', async(req, res) => {
+// same thought as with '/'
+threadsRouter.get('/catalogThreads', memcachedMiddleware(6), async(req, res) => {
     const threads = await Thread.find({}, {thumbnail125URL: 1, text:1, numComments: 1, numImages: 1, postNum: 1, date: 1})
 
     res.status(200).send(threads)
+})
+
+threadsRouter.get('/:threadNum', memcachedMiddleware(6), async(req, res) => {
+    const threadNum = req.params.threadNum
+    const searchedThread = await Thread.findOne({postNum: threadNum})
+
+    res.status(200).send(searchedThread)
 })
 
 
@@ -75,6 +75,8 @@ threadsRouter.post('/', upload.single('file'), validMimeType, initUploadData, as
 
     res.status(201).json(savedThread)
 })
+
+// will need JWT verification in the future
 
 threadsRouter.delete('/', async(req, res, next) => {
         // console.log(req)

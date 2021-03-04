@@ -56,8 +56,6 @@ const ReplyForm = ({getCommentsHook, getRepliesHook, getThreadDataHook}) => {
         setFile(e.target.files[0])
     }
 
-    console.log('fired up here?')
-
     // console.log(replyText)
 
     return (

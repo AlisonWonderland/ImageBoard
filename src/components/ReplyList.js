@@ -1,3 +1,5 @@
+import React from 'react'
+
 const ReplyList = ({ replies }) => {
     return (
         <>
@@ -11,5 +13,7 @@ const ReplyList = ({ replies }) => {
         </>
     )
 }
+
+// const ReplyList = React.memo(ReplyListNonMemo)
 
 export default ReplyList

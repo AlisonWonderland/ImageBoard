@@ -1,4 +1,28 @@
 const logger = require('./logger')
+const { memcached } = require('./generator')
+
+
+let memcachedMiddleware = (duration) => {
+    return  (req,res,next) => {
+        let key = "__express__" + req.originalUrl || req.url;
+        memcached.get(key, function(err,data){
+            if(data){
+                res.send(data);
+                return;
+            }else{
+                res.sendResponse = res.send;
+                res.send = (body) => {
+                    memcached.set(key, body, (duration*10), function(err){
+                        if(err)
+                            console.error('Error occured using memcache middleware:', err)
+                    });
+                    res.sendResponse(body);
+                }
+                next();
+            }
+        });
+    }
+}
 
 const requestLogger = (request, response, next) => {
     logger.info('Method:', request.method)
@@ -18,6 +42,7 @@ const validMimeType = (req, res, next) => {
     }
     else {
         const mimetype = file.mimetype
+        console.log(mimetype)
         if(mimetype === "image/jpeg" || mimetype === "image/png" || mimetype === "image/gif" || mimetype === "video/webm")
             next()
         else 
@@ -63,6 +88,7 @@ const errorHandler = (error, request, response, next) => {
 }
 
 module.exports = {
+    memcachedMiddleware,
     requestLogger,
     validMimeType,
     initUploadData,

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
-import ThreadForm from './components/ThreadForm'
-import Threads from './components/Threads'
 import ThreadsCatalog from './components/ThreadsCatalog'
-import postService from './services/post'
+import Home from './components/Home'
+import FullThread from './components/FullThread'
+import NotFound from './components/NotFound'
 
 import {
     BrowserRouter as Router,
@@ -12,31 +11,8 @@ import {
 } from "react-router-dom";
 
 import './App.css';
-import FullThread from './components/FullThread'
 
 function App() {
-    const [ threads, setThreads ] = useState([])
-    
-    // console.log('threads', threads)
-    
-    const getThreadsHook = () => {
-        const fetchThreads = async() => {
-            const fetchThreads = await postService.getThreads()
-            const fetchedThreads = fetchThreads.data
-            
-            setThreads(fetchedThreads)
-            console.log('threads reset')
-            // console.log('threads:', fetchThreads)
-        }
-        fetchThreads()
-    }
-
-    console.log('threads..', threads)
-
-    console.log(threads)
-
-    useEffect(getThreadsHook, [])
-
     return (
         <>
             <Router>
@@ -46,18 +22,13 @@ function App() {
                         <ThreadsCatalog />
                     </Route>
                     <Route exact path="/">
-                        {
-                            threads.length ?
-                            <>
-                                <ThreadForm threads={threads} setThreads={setThreads}>Create Thread</ThreadForm>
-                                <Threads threads={threads}></Threads>
-                            </>
-                            :
-                            <h1>Loading threads...</h1>
-                        }
+                        <Home />
                     </Route>
                     <Route exact path="/thread/:threadID">
-                        <FullThread threads={threads}></FullThread>
+                        <FullThread />
+                    </Route>
+                    <Route>
+                        <NotFound />
                     </Route>
                 </Switch>
             </Router>

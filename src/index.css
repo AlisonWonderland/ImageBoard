@@ -34,7 +34,7 @@ code {
 
 .navbar {
     height: 50px;
-    background-color: #a9b7e6;
+    background-color: #a1bbff;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -232,4 +232,10 @@ textarea {
 
 .textPreview {
 
+}
+
+
+.notFound {
+    font-size: 28px;
+    text-align: center;
 }

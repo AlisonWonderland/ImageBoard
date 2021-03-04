@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import File from './File'
 import PostText from './PostText'
 import PostInfo from './PostInfo'
 
 import postService from '../services/post'
 
-const Post = ({ post }) => {
+const PostNonMemo = ({ post }) => {
     const [ replies, setReplies ] = useState([])
 
     const getRepliesHook = () => {
@@ -41,5 +41,7 @@ const Post = ({ post }) => {
         </div>
     )
 }
+
+const Post = React.memo(PostNonMemo)
 
 export default Post

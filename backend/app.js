@@ -19,7 +19,7 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true, us
 
 app.use(cors())
 app.use(express.json())
-app.use(middleware.requestLogger)
+// app.use(middleware.requestLogger)
 
 app.use('/api/threads', threadsRouter)
 app.use('/api/comment', commentRouter)

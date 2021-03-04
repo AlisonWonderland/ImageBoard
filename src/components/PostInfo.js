@@ -30,7 +30,7 @@ const PostInfo = (postInfo) => {
         <div className="postInfo">
             <span className="nameBlock"><strong> Anonymous&nbsp;</strong> </span> 
             {formatDate(postInfo.date)} 
-            <span className="postNum"><a href={`#${postInfo.postNum}`}> No. </a><a href={`#${postInfo.postNum}`} onClick={handleReplyClick}>{postInfo.postNum}</a> &nbsp;</span> 
+            <span className="postNum"><a href={`#${postInfo.postNum}`}> No. </a><span onClick={handleReplyClick}>{postInfo.postNum}</span> &nbsp;</span> 
             [<a href="posturl">Reply</a>] &gt; 
             
             <ReplyList replies={postInfo.replies}></ReplyList>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import ReplyForm from './ReplyForm'
 import Posts from './Posts'
 import File from './File'
@@ -9,12 +9,12 @@ import { FormContextProvider } from './contexts'
 
 import postService from '../services/post'
 
-const Thread = ({ thread }) => {
+const ThreadNonMemo = ({ thread }) => {
     const [ replies, setReplies ] = useState([])
     const [ comments, setComments ] = useState([])
     const [ data, setData ] = useState({})
 
-    console.log('thread from full:', thread)
+    // console.log('thread from full:', thread)
 
     const getRepliesHook = () => {
         const fetchReplies = async() => {
@@ -54,7 +54,7 @@ const Thread = ({ thread }) => {
     useEffect(getRepliesHook, [thread.postNum])
     useEffect(getThreadDataHook, [thread.postNum])
 
-    console.log('thread rerendered?')
+    // console.log('thread rerendered?')
 
     return (
         <>
@@ -84,5 +84,7 @@ const Thread = ({ thread }) => {
         </>
     )
 }
+
+const Thread = React.memo(ThreadNonMemo)
 
 export default Thread;
