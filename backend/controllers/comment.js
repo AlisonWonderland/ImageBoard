@@ -90,15 +90,13 @@ commentRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, 
     res.status(201).json(savedComment)
 })
 
-commentRouter.delete('/', async(req, res, next) => {
-    console.log(config.PIN)
-    if(req.body.pin === config.PIN) {
-        await Comment.deleteMany({})
-        console.log('comments deletion')
-        res.status(200).end()
-    }
+commentRouter.delete('/multiple', async(req, res, next) => {
+    const commentsToDelete = req.body
+    console.log('commentsTo:', commentsToDelete)
+    // await Thread.deleteMany({"postNum": {"$in": commentsToDelete}})
+    res.status(200).end()
 
-    res.status(401).end()
+    // res.status(401).end()
 })
 
 

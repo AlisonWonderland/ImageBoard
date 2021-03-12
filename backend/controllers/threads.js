@@ -78,9 +78,11 @@ threadsRouter.post('/', upload.single('file'), validMimeType, initUploadData, as
 
 // will need JWT verification in the future
 
+// delete all route
+// there is an error with invalid deletion routes
 threadsRouter.delete('/', async(req, res, next) => {
         // console.log(req)
-        console.log(config.PIN)
+        console.log(config.PIN, 'noo')
         if(req.body.pin === config.PIN) {
             await Thread.deleteMany({})
             console.log('threads deletion')
@@ -88,6 +90,15 @@ threadsRouter.delete('/', async(req, res, next) => {
         }
     
         res.status(401).end()
+})
+
+threadsRouter.delete('/multiple', async(req, res, next) => {
+    const threadsToDelete = req.body
+    console.log('threadsTo:', threadsToDelete)
+    // await Thread.deleteMany({"postNum": {"$in": threadsToDelete}})
+    res.status(200).end()
+
+    // res.status(401).end()
 })
 
 threadsRouter.delete('/:threadNum/', async(req, res, next) => {
