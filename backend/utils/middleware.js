@@ -1,4 +1,6 @@
 const logger = require('./logger')
+const config = require('../config/config')
+const jwt = require('jsonwebtoken')
 const { handleDuplicateKeyError, handleValidationError } = require('./errorHandlers')
 const { memcached } = require('./generator')
 
@@ -30,6 +32,54 @@ const requestLogger = (req, res, next) => {
     logger.info('Path:  ', req.path)
     logger.info('Body:  ', req.body)
     logger.info('---')
+    next()
+}
+
+// Intercepted properties are for the interceptors in App.js of admin-imageboard.
+const checkCredentials = (req, res, next) => {
+    console.log('url', req.originalUrl)
+    const body = req.body
+    let token = ''
+
+    const authHeader = req.headers.authorization
+    // console.log('headers stringified', JSON.stringify(req.headers));
+    // console.log('headers', req.headers);
+    // console.log('body', req.body, config.PIN, body.currentPassword)
+
+    if (authHeader.startsWith("Bearer ")){
+        token = authHeader.substring(7, authHeader.length);
+        req.body.token = token
+
+        try{
+            let payload = jwt.verify(token, config.PIN)
+            req.body.payload = payload
+        }
+        catch(err) {
+            if(err.name === 'TokenExpiredError') {
+                if(req.originalUrl === '/api/authentication/refresh')
+                    res.status(401).send({messages: 'Invalid user token. Please sign in again.', intercepted: true})
+                else
+                    res.status(401).send({messages: 'Invalid user token. Please sign in again.'})
+            }
+            else {
+                if(req.originalUrl === '/api/authentication/refresh')
+                    res.status(500).send({messages: 'Unknown server error. Please sign in again', intercepted: true})
+                else
+                    res.status(500).send({messages: 'Unknown server error. Please sign in again'})
+            }
+        }
+   } 
+
+   else {
+        if(req.originalUrl === '/api/authentication/refresh') {
+            res.status(400).send({messages: 'Wrong header used in request', intercepted: true })
+        }
+        else {
+            res.status(400).send({messages: 'Wrong header used in request'})
+        }
+   }
+
+
     next()
 }
 
@@ -94,6 +144,7 @@ const errorHandler = (error, req, res, next) => {
 
 module.exports = {
     memcachedMiddleware,
+    checkCredentials,
     requestLogger,
     validMimeType,
     initUploadData,

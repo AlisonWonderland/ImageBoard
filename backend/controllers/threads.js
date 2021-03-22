@@ -94,8 +94,11 @@ threadsRouter.delete('/', async(req, res, next) => {
 
 threadsRouter.delete('/multiple', async(req, res, next) => {
     const threadsToDelete = req.body
-    console.log('threadsTo:', threadsToDelete)
+    console.log('threadsToDelete:', threadsToDelete)
+
+    // await Comment.deleteMany({"parentThread": {"$in": threadsToDelete}})
     // await Thread.deleteMany({"postNum": {"$in": threadsToDelete}})
+
     res.status(200).end()
 
     // res.status(401).end()

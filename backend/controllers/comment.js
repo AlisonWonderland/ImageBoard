@@ -3,6 +3,7 @@ const { memcachedMiddleware, validMimeType, initUploadData } = require('../utils
 const Thread = require('../models/Thread')
 const Comment = require('../models/Comment')
 const config = require('../config/config')
+const ObjectId = require('mongodb').ObjectID;
 
 const { upload } = require('../utils/generator')
 const { updateCache } = require('../utils/cache')
@@ -10,6 +11,8 @@ const { updateCache } = require('../utils/cache')
 const uploadService = require('../services/upload')
 
 commentRouter.get('/', memcachedMiddleware(6), async(req, res) => {
+    console.log('url', req.originalUrl)
+
     const comments = await Comment.find({})
         .populate('replies', { text: 1, postNum: 1 })
     res.json(comments)
@@ -90,13 +93,30 @@ commentRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, 
     res.status(201).json(savedComment)
 })
 
+// this could use a performance boost
+// maybe pass in parentThread from front end?
+// but that will only work after threads are all reset
 commentRouter.delete('/multiple', async(req, res, next) => {
     const commentsToDelete = req.body
     console.log('commentsTo:', commentsToDelete)
-    // await Thread.deleteMany({"postNum": {"$in": commentsToDelete}})
-    res.status(200).end()
 
-    // res.status(401).end()
+    // Got to fetch comments to get ids and remove them from parent threads
+    const comments = await Comment.find({"postNum": {"$in": commentsToDelete}})
+    let parentThread = {}
+    
+    for(let i = 0; i < comments.length; ++i) {
+        parentThread = await Thread.findOne({"postNum": comments[i].parentThread})
+
+        parentThread.comments = parentThread.comments.filter(comment => !comment.equals(comments[i]._id))
+        parentThread.replies = parentThread.replies.filter(reply => !reply.equals(comments[i]._id))
+
+        console.log('comments length', parentThread.comments.length)
+        console.log('reply length', parentThread.replies.length)
+        // await parentThread.save()
+    }
+
+    // await Comment.deleteMany({"postNum": {"$in": commentsToDelete}})
+    res.status(200).end()
 })
 
 

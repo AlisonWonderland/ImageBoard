@@ -17,8 +17,11 @@ const adminSchema = new mongoose.Schema({
         required: [true, 'Enter a password.'],
         minLength: [4, 'Password should be at least four characters']
     },
-    isSuperAdmin: {
-        type: Boolean
+    refreshToken : {
+        type: String
+    },
+    permissions: {
+        type: String
     },
     commentsDeleted: {
         type: Number,
@@ -34,6 +37,10 @@ const adminSchema = new mongoose.Schema({
     },
     lastDeletionDate: {
         type: Date
+    },
+    settings: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AdminSettings'
     }
 })
 
