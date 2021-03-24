@@ -1,5 +1,5 @@
 const threadsRouter = require('express').Router()
-const { memcachedMiddleware, validMimeType, initUploadData } = require('../utils/middleware')
+const { memcachedMiddleware, validMimeType, initUploadData, checkCredentials } = require('../utils/middleware')
 const Comment = require('../models/Comment')
 const Thread = require('../models/Thread')
 const config = require('../config/config')
@@ -7,6 +7,7 @@ const config = require('../config/config')
 const uploadService = require('../services/upload')
 
 const { upload } = require('../utils/generator')
+const Admin = require('../models/Admin')
 
 // this probably wont be called as often as the others. so caching it for 60 seconds
 threadsRouter.get('/', memcachedMiddleware(6), async(req, res) => {
@@ -92,10 +93,19 @@ threadsRouter.delete('/', async(req, res, next) => {
         res.status(401).end()
 })
 
-threadsRouter.delete('/multiple', async(req, res, next) => {
-    const threadsToDelete = req.body
+threadsRouter.delete('/multiple', checkCredentials, async(req, res, next) => {
+    const threadsToDelete = req.body.postNums
     console.log('threadsToDelete:', threadsToDelete)
+    console.log('body:', req.body)
 
+    const admin = await Admin.findOne({username: req.body.payload.username})
+    admin.threadsDeleted += threadsToDelete.length
+    admin.totalPostsDeleted += threadsToDelete.length
+    admin.lastDeletionDate = new Date()
+    await admin.save()
+
+    console.log('admin after deletes', admin)
+    
     // await Comment.deleteMany({"parentThread": {"$in": threadsToDelete}})
     // await Thread.deleteMany({"postNum": {"$in": threadsToDelete}})
 

@@ -39,8 +39,7 @@ const adminSchema = new mongoose.Schema({
         type: Date
     },
     settings: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'AdminSettings'
+        darkMode: Boolean
     }
 })
 

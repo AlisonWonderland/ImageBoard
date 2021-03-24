@@ -1,7 +1,8 @@
 const commentRouter = require('express').Router()
-const { memcachedMiddleware, validMimeType, initUploadData } = require('../utils/middleware')
+const { memcachedMiddleware, validMimeType, initUploadData, checkCredentials } = require('../utils/middleware')
 const Thread = require('../models/Thread')
 const Comment = require('../models/Comment')
+const Admin = require('../models/Admin')
 const config = require('../config/config')
 const ObjectId = require('mongodb').ObjectID;
 
@@ -96,8 +97,9 @@ commentRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, 
 // this could use a performance boost
 // maybe pass in parentThread from front end?
 // but that will only work after threads are all reset
-commentRouter.delete('/multiple', async(req, res, next) => {
-    const commentsToDelete = req.body
+commentRouter.delete('/multiple', checkCredentials, async(req, res, next) => {
+    console.log('body:', req.body)
+    const commentsToDelete = req.body.postNums
     console.log('commentsTo:', commentsToDelete)
 
     // Got to fetch comments to get ids and remove them from parent threads
@@ -114,6 +116,15 @@ commentRouter.delete('/multiple', async(req, res, next) => {
         console.log('reply length', parentThread.replies.length)
         // await parentThread.save()
     }
+
+
+    const admin = await Admin.findOne({username: req.body.payload.username})
+    admin.commentsDeleted += commentsToDelete.length
+    admin.totalPostsDeleted += commentsToDelete.length
+    admin.lastDeletionDate = new Date()
+    await admin.save()
+
+    console.log('admin after deletes', admin)
 
     // await Comment.deleteMany({"postNum": {"$in": commentsToDelete}})
     res.status(200).end()

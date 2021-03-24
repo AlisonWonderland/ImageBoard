@@ -22,6 +22,6 @@ adminSettingsSchema.set('toJSON', {
     }
 })
 
-const AdminSettings = mongoose.model('Admin', adminSettingsSchema)
+const AdminSettings = mongoose.model('AdminSettings', adminSettingsSchema)
 
 module.exports = AdminSettings

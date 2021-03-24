@@ -1,7 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken')
 const config = require('../config/config')
-const Admin = require('../models/Admin')
+const Admin = require('../models/Admin');
+// const AdminSettings = require("../models/AdminSettings");
 const { isVerifiedRefreshToken } = require('../utils/auth')
 const { checkCredentials } = require('../utils/middleware')
 const authenticationRouter = require('express').Router()
@@ -13,42 +14,42 @@ authenticationRouter.post('/login', async (req, res) => {
     if (admin) {
       const validPassword = await bcrypt.compare(body.password, admin.password);
       
-      if (validPassword) {
-        const payload = { username: admin.username, permissions: admin.permissions, settings: admin.settings }
+        if (validPassword) {
+            const payload = { username: admin.username, permissions: admin.permissions }
 
-        const token = jwt.sign(payload, config.PIN, {
-            expiresIn: 5
-        });
-        // console.log('admin:', admin)
-        // issues a new refresh token if the old one expired
-        let refreshToken = {}
-        
-        if(!isVerifiedRefreshToken(admin.refreshToken)) {
-            refreshToken = jwt.sign(payload, config.PIN, {
-                expiresIn: 30 // make 48 hours for real version
-            })
+            const token = jwt.sign(payload, config.PIN, {
+                expiresIn: 600
+            });
+            // console.log('admin:', admin)
+            // issues a new refresh token if the old one expired
+            let refreshToken = {}
+            
+            if(!isVerifiedRefreshToken(admin.refreshToken)) {
+                refreshToken = jwt.sign(payload, config.PIN, {
+                    expiresIn: 3600 // make 48 hours for real version
+                })
 
-            admin.refreshToken = refreshToken
-            await admin.save()
-        }
+                admin.refreshToken = refreshToken
+                await admin.save()
+            }
+            else {
+                // not needed if not storing it in local storage
+                refreshToken = admin.refreshToken
+            }
+
+            console.log('final refresh token', refreshToken, '\n', 'and token:', token)
+
+            // don't need refresh token i think
+            res.status(200).json({token, refreshToken, settings: admin.settings});
+        } 
+
         else {
-            // not needed if not storing it in local storage
-            refreshToken = admin.refreshToken
+            res.status(401).json({ error: "Invalid login" });
         }
-
-        console.log('final refresh token', refreshToken, '\n', 'and token:', token, 'settings', payload.settings)
-
-        // don't need refresh token i think
-        res.status(200).json({token, refreshToken});
-      } 
-
-      else {
-        res.status(401).json({ error: "Invalid login" });
-      }
     } 
     
     else {
-      res.status(401).json({ error: "Invalid login" });
+        res.status(401).json({ error: "Invalid login" });
     }
 })
 
@@ -81,7 +82,7 @@ authenticationRouter.post('/refresh', checkCredentials, (req, res) => {
         delete payload.exp
         // username: payload.username, permissions: payload.permissions
         const newAccessToken = jwt.sign({ ...payload }, config.PIN, {
-            expiresIn: 5 // expires in 100 secs
+            expiresIn: 600 // expires in 100 secs
         });
 
         res.status(200).json({newAccessToken})

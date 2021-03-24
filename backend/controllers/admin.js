@@ -1,7 +1,10 @@
 const bcrypt = require("bcrypt");
 const config = require('../config/config')
 const jwt = require('jsonwebtoken')
+const { checkCredentials } = require('../utils/middleware')
 const Admin = require('../models/Admin')
+const AdminSettings = require('../models/AdminSettings');
+const Thread = require("../models/Thread");
 const adminRouter = require('express').Router()
 
 adminRouter.get('/', async (req, res) => {
@@ -75,9 +78,8 @@ adminRouter.put('/password', async(req, res) => {
         console.log(err)
         if(err.name === 'TokenExpiredError')
             res.status(401).send({messages: 'Invalid user token. Please sign in again.'})
-        else {
+        else
             res.status(500).send({messages: 'Unknown error occured. Please try again.'})
-        }
     }
 
 
@@ -89,14 +91,21 @@ adminRouter.put('/updatePermissions', async(req, res) => {
     res.status(200).end()
 })
 
-adminRouter.put('/updateSettings', async(req, res) => {
-    // first middleware
-    // pass user in token, still use auth header. settings in body
+adminRouter.put('/updateSettings', checkCredentials, async(req, res) => {
+    const newSettings = req.body.settings
+    const { username } = req.body.payload
 
-    // check for admin settings, if undefined create new adminsettins
+    const admin = await Admin.findOne({username})
 
-    // update settings according to body
-    res.status(200).end()
+    if(admin.settings === null) {
+        admin.settings = newSettings
+    }
+    else {
+        admin.settings = {...admin.settings, ...newSettings}
+    } 
+    
+    await admin.save()
+    res.status(204).end()
 })
 
 adminRouter.delete('/all', async (req, res) => {
@@ -105,10 +114,10 @@ adminRouter.delete('/all', async (req, res) => {
 })
 
 // deletes one or more
-adminRouter.delete('/multiple', async (req, res) => {
-    const adminsToDelete = req.body
+adminRouter.delete('/multiple', checkCredentials, async (req, res) => {
+    const adminsToDelete = req.body.usernames
     console.log('adminsTo:', adminsToDelete)
-    // await Admin.deleteMany({"postNum": {"$in": adminsToDelete}})
+    // await Admin.deleteMany({"username": {"$in": adminsToDelete}})
     res.status(200).end()
 })
 

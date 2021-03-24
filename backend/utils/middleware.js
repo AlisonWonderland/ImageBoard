@@ -12,7 +12,8 @@ let memcachedMiddleware = (duration) => {
             if(data){
                 res.send(data);
                 return;
-            }else{
+            }
+            else{
                 res.sendResponse = res.send;
                 res.send = (body) => {
                     memcached.set(key, body, (duration*10), function(err){
@@ -37,19 +38,25 @@ const requestLogger = (req, res, next) => {
 
 // Intercepted properties are for the interceptors in App.js of admin-imageboard.
 const checkCredentials = (req, res, next) => {
-    console.log('url', req.originalUrl)
-    const body = req.body
-    let token = ''
+    // When calling delete routes, body is passed as array. And modifications to req.body
+    // will cause bugs
+    if(Array.isArray(req.body)) {
+        req.body = { data: req.body}
+    }
 
+    let token = ''
     const authHeader = req.headers.authorization
+    console.log('header in middle', authHeader)
+    console.log('headers in middle', req.headers)
     // console.log('headers stringified', JSON.stringify(req.headers));
     // console.log('headers', req.headers);
     // console.log('body', req.body, config.PIN, body.currentPassword)
 
     if (authHeader.startsWith("Bearer ")){
         token = authHeader.substring(7, authHeader.length);
+        // might not need to pass in body
         req.body.token = token
-
+        console.log('token from middle', token)
         try{
             let payload = jwt.verify(token, config.PIN)
             req.body.payload = payload
