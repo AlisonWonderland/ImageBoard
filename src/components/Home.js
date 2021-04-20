@@ -7,24 +7,18 @@ import postService from '../services/post'
 
 const Home = () => {
     const [ threads, setThreads ] = useState([])
-    
-    // console.log('threads', threads)
-    
+        
     const getThreadsHook = () => {
         const fetchThreads = async() => {
             const fetchThreads = await postService.getThreads()
             const fetchedThreads = fetchThreads.data
             
             setThreads(fetchedThreads)
-            console.log('threads reset')
+            // console.log('threads reset')
             // console.log('threads:', fetchThreads)
         }
         fetchThreads()
     }
-
-    console.log('threads..', threads)
-
-    console.log(threads)
 
     useEffect(getThreadsHook, [])
 

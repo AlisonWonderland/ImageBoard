@@ -11,17 +11,12 @@ body {
   font-size: 13.33px;
 }
 
-/* html {
-    margin: 0px;
-    height: 100%;
-    max-width: 100%;
- }
- 
- body {
-    margin: 0px;
-    min-height: 100%;
-    max-width: 100%;
-} */
+textarea {
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.4;
+    padding: 3px;
+}
 
 #root {
     height: 100%;
@@ -48,6 +43,7 @@ code {
 .nav {
     display: flex;
     list-style: none;
+    align-items: center;
 }
 
 .nav > li {
@@ -59,8 +55,54 @@ code {
     color: black;
 }
 
+.postCommentLink {
+    font-size: 16px;
+}
+
 #search {
     border-radius: 5px;
+}
+
+.createPostBtn {
+    padding: 10px 20px;
+    background: #fff;
+    font-size: 16px;
+    color: blue;
+    border: 2px solid blue;
+    border-radius: 5px;
+}
+
+.createPostBtn:hover {
+    background: #ececec;
+}
+
+.submitFormInput {
+    background-color: #1ca71c;
+    margin: 0px 10px;
+}
+
+.submitFormInput:hover {
+    background-color: #189218;
+}
+
+.cancelUploadBtn {
+    background-color: #e24f3b;
+}
+
+.cancelUploadBtn:hover {
+    background-color: #c34837;
+}
+
+.submitFormInput, .cancelUploadBtn {
+    color: white;
+    font-size: 16px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+.createPostBtn, .cancelUploadBtn, .submitFormInput {
+    cursor: pointer;
 }
 
 .thread {
@@ -68,11 +110,21 @@ code {
     margin: 0;
 }
 
+.threadContainer, .homeThread {
+    padding: 5px;
+}
+
+.homeThread {
+    margin-top: 20px;
+    border-top: 1px #b9b9b9 solid;
+}
+
 hr {
     clear: both;
 }
 
 .threadFormContainer {
+    margin: 10px 0px;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -165,8 +217,9 @@ div.reply {
 }
 
 .replyFormContainer {
-    background: red;
+    background: #b8d1dc;
     padding: 3px 2px;
+    border: 1px solid grey;
     position: fixed;
     top: 50%;
     right: 10px;
@@ -183,19 +236,21 @@ div.reply {
 
 .closeFormBtn {
     float: right;
+    margin-right: 5px;
 }
 
 .closeFormBtn:hover {
     cursor: pointer;
 }
 
-textarea {
-    width: 100%;
+.formBtnsContainer {
+    display: flex;
+    justify-content: space-between;
 }
 
 .row {
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
+    border-top: 1px solid #b9b9b9;
+    border-bottom: 1px solid #b9b9b9;
     padding: 25px 0px 25px 0px;
     width: 100%;
     display: flex;
@@ -229,11 +284,6 @@ textarea {
     height: 25%;
     margin-bottom: 50px;
 }
-
-.textPreview {
-
-}
-
 
 .notFound {
     font-size: 28px;

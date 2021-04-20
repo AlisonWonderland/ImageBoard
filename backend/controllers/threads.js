@@ -29,7 +29,7 @@ threadsRouter.get('/:threadNum/data', memcachedMiddleware(2), async(req, res) =>
     const thread = await Thread.findOne({postNum: req.params.threadNum})
     data.numComments =  thread.numComments
     data.numImages = thread.numImages
-    console.log(data.numImages)
+    // console.log(data.numImages)
     // unique posters
 
     res.json(data)

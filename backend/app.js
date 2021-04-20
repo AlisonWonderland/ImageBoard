@@ -20,8 +20,8 @@ const mongoUrl = config.MONGODB_URI
 logger.info('connecting to', mongoUrl)
 
 mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
-.then(() => logger.info('Connected to MongoDB'))
-.catch(err => logger.error('Error:', err))
+    .then(() => logger.info('Connected to MongoDB'))
+    .catch(err => logger.error('Error:', err))
 
 // need to figure out which ones to use
 app.use(cors())

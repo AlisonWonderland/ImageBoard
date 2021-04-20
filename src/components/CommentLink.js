@@ -10,7 +10,7 @@ const CommentLink = () => {
     }
 
     return (
-            <span>
+            <span className="postCommentLink">
                 [ <a href="#" onClick={handleClick}>Post a comment</a> ]
             </span>
     )

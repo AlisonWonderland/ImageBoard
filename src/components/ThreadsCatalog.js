@@ -21,7 +21,6 @@ const ThreadsCatalog = () => {
 
     return (
         <>
-            <h1>catalog</h1>
             {
                 threads.length ?
                     <MiniThreads threads={threads}></MiniThreads>

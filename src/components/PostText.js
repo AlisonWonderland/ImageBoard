@@ -2,11 +2,13 @@ import DOMPurify from 'dompurify'
 
 const PostText = ({ text }) => {
     // first figure out how to show newlines
-    // const test = '<a href="#1"> >>12 </a>'
+    const regex = />>(?<parentNum>\d+)/gm
+    const test = text.replace(regex, '<a href="#$<parentNum>">$&</a>')
+    // const test = '<a href="#1"> >>12 </a>\n more text'
     return (
-        <blockquote className="postMessage" cite="">
+        <blockquote dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(test)}} className="postMessage" cite="">
             {/* <div dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(test)}}></div> */}
-            {text}
+            {/* {text} */}
         </blockquote>
     )
 }

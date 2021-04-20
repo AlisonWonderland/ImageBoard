@@ -16,9 +16,9 @@ const Navbar = () => {
                         <Link className="nav-link" to="/Catalog">Catalog</Link>
                     </li>
                 </ul>
-                <form>
+                {/* <form>
                     <input type="text" size="50" id="search"></input>
-                </form>
+                </form> */}
             </div>
     )
 }

@@ -92,6 +92,7 @@ adminRouter.put('/updatePermissions', async(req, res) => {
 })
 
 adminRouter.put('/updateSettings', checkCredentials, async(req, res) => {
+    console.log('req body in settings', req.body)
     const newSettings = req.body.settings
     const { username } = req.body.payload
 

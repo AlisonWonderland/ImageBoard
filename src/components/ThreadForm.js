@@ -47,10 +47,11 @@ const ThreadForm = ({ threads, setThreads }) => {
             <form style={{display: hide ? "none": ""}} onSubmit={handleSubmission}>
                 <textarea name="submissionText" placeholder="Thread text" id="" cols="50" rows="10" value={submissionText} onChange={handleSubmissionTextChange} required></textarea>
                 <br/>
-                <input name="file" type="file" onChange={handleFileChange} required/>
-                <input type="submit" value="Create Thread"/>
+                <input className="fileInput" name="file" type="file" onChange={handleFileChange} required/>
+                <input className="submitFormInput" type="submit" value="Create Thread"/>
+                <button className="cancelUploadBtn" style={{display: hide ? "none": ""}} onClick={handleClick}>Cancel</button>
             </form>
-            <button style={{display: !hide ? "none": ""}} onClick={handleClick}>Create Thread</button>
+            <button className="createPostBtn" style={{display: !hide ? "none": ""}} onClick={handleClick}>Create Thread</button>
         </div>
     )
 }

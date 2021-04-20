@@ -63,6 +63,7 @@ const checkCredentials = (req, res, next) => {
         }
         catch(err) {
             if(err.name === 'TokenExpiredError') {
+                console.log('token expired')
                 if(req.originalUrl === '/api/authentication/refresh')
                     res.status(401).send({messages: 'Invalid user token. Please sign in again.', intercepted: true})
                 else

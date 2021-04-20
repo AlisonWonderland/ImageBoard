@@ -27,3 +27,6 @@ yarn-error.log*
 *.png
 *.jpg
 *.jpeg
+
+# Not these
+!/screenshots/*

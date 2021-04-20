@@ -1,4 +1,4 @@
-import Thread from './Thread'
+import HomeThread from './HomeThread'
 
 const Threads = ({ threads }) => {
 
@@ -6,7 +6,7 @@ const Threads = ({ threads }) => {
         <div className="threads">
             {threads.map(thread => {
                 return (
-                    <Thread key={thread.id} thread={thread}></Thread>
+                    <HomeThread key={thread.id} thread={thread}></HomeThread>
                 )
             })}
         </div>

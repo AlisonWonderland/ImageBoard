@@ -124,6 +124,8 @@ class UploadService {
         
      async createVideoThumbnail() {
         const videoFile = `${this.id}.webm`
+        // initalize 125px thumbnail to non empy string because regardless of post type it is
+        // always going to be used
         const videoThumbnail125 = `${this.id}thumb125.jpg`
         let videoThumbnail250 = ''
     

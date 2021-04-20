@@ -59,22 +59,24 @@ const ThreadNonMemo = ({ thread }) => {
     return (
         <>
             <div className="thread">
-            <FormContextProvider 
+                <FormContextProvider 
                     parentThread={thread.postNum} 
                     parent={thread.postNum}
                     parentType={'thread'}
                 >
                     <NavRow threadData={data} type="top"></NavRow>
-                    <div className="postContainer opContainer">
-                        <div id={thread.postNum} className="post op">
-                            <File url={thread.url} filename={thread.filename} dimensions={thread.dimensions} thumbnailURL={thread.thumbnail250URL} filetype={thread.filetype}></File>
-                            <PostInfo date={thread.date} postNum={thread.postNum} replies={replies} postType={'thread'}></PostInfo>
-                            <PostText text={thread.text}></PostText>
+                    <div className="threadContainer">
+                        <div className="postContainer opContainer">
+                            <div id={thread.postNum} className="post op">
+                                <File url={thread.url} filename={thread.filename} dimensions={thread.dimensions} thumbnailURL={thread.thumbnail250URL} filetype={thread.filetype}></File>
+                                <PostInfo date={thread.date} postNum={thread.postNum} replies={replies} postType={'thread'}></PostInfo>
+                                <PostText text={thread.text}></PostText>
+                            </div>
                         </div>
-                    </div>
 
-                    <ReplyForm getCommentsHook={getCommentsHook} getRepliesHook={getRepliesHook} getThreadDataHook={getThreadDataHook}></ReplyForm>
-                    <Posts posts={comments}></Posts>
+                        <ReplyForm getCommentsHook={getCommentsHook} getRepliesHook={getRepliesHook} getThreadDataHook={getThreadDataHook}></ReplyForm>
+                        <Posts posts={comments} viewType='thread'></Posts>
+                    </div>
                     {/* this will have to go in some footer */}
                     <NavRow threadData={data} type="bot"></NavRow>
                 </FormContextProvider>

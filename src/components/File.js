@@ -22,13 +22,14 @@ const File = (fileInfo) => {
 
     const getMaxDimensions = (dimensions) => {
         const aspectRatio = dimensions.width / dimensions.height
+        console.log('ratio', aspectRatio)
         const maxWidth = windowWidth - 70
         let maxHeight = 0
 
         if(dimensions.width <= maxWidth)
             maxHeight = dimensions.height
         else
-            maxHeight = maxHeight / aspectRatio
+            maxHeight = maxWidth / aspectRatio
 
             return { maxWidth, maxHeight }
     }

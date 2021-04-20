@@ -29,7 +29,6 @@ const PostNonMemo = ({ post }) => {
         <></>
         :   <File url={post.url} filename={post.filename} dimensions={post.dimensions} thumbnailURL={post.thumbnail125URL} filetype={post.filetype}></File>
 
-    // add reply form here
     return (
         <div id={post.postNum} className="postContainer replyContainer">
             <div className="sideArrows">&gt;&gt;</div>

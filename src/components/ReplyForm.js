@@ -53,21 +53,24 @@ const ReplyForm = ({getCommentsHook, getRepliesHook, getThreadDataHook}) => {
     // }
 
     const handleFileChange = (e) => {
+        console.log('files', e.target.files[0])
         setFile(e.target.files[0])
     }
-
-    // console.log(replyText)
 
     return (
         <div className="replyFormContainer" style={{display: showForm ? "": "none"}}>
             <form onSubmit={handleSubmission}>
-                <span className="replyHeader">Reply to Thread No. {parent} <img alt="X" src="./assets/cross.png" className="closeFormBtn" onClick={handleClose}></img></span>
+                <span className="replyHeader">
+                    Reply to Thread No. {parent} 
+                    <span className="closeFormBtn" onClick={handleClose}>X</span>
+                </span>
                 <br/>
                 <Textarea></Textarea>
                 <br/>
-                <div className=""></div>
-                <input name="file" type="file" onChange={handleFileChange} key={Date.now()}/>
-                <input type="submit" value="Submit comment"/>
+                <div className="formBtnsContainer">
+                    <input name="file" type="file" onChange={handleFileChange}/>
+                    <input className="submitFormInput" type="submit" value="Submit comment"/>
+                </div>
             </form>
         </div>
     )

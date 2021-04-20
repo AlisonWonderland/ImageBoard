@@ -97,6 +97,8 @@ commentRouter.post('/', upload.any(), validMimeType, initUploadData, async(req, 
 // this could use a performance boost
 // maybe pass in parentThread from front end?
 // but that will only work after threads are all reset
+
+// commenting out .save() calls for testing purposes
 commentRouter.delete('/multiple', checkCredentials, async(req, res, next) => {
     console.log('body:', req.body)
     const commentsToDelete = req.body.postNums
@@ -122,7 +124,7 @@ commentRouter.delete('/multiple', checkCredentials, async(req, res, next) => {
     admin.commentsDeleted += commentsToDelete.length
     admin.totalPostsDeleted += commentsToDelete.length
     admin.lastDeletionDate = new Date()
-    await admin.save()
+    // await admin.save()
 
     console.log('admin after deletes', admin)
 

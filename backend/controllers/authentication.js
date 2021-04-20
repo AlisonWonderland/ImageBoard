@@ -20,7 +20,7 @@ authenticationRouter.post('/login', async (req, res) => {
             const token = jwt.sign(payload, config.PIN, {
                 expiresIn: 600
             });
-            // console.log('admin:', admin)
+            console.log('++token from login:', token)
             // issues a new refresh token if the old one expired
             let refreshToken = {}
             
