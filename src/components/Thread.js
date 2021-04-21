@@ -14,12 +14,12 @@ const ThreadNonMemo = ({ thread }) => {
     const [ comments, setComments ] = useState([])
     const [ data, setData ] = useState({})
 
-    // console.log('thread from full:', thread)
+    console.log('thread from full:', thread)
 
     const getRepliesHook = () => {
         const fetchReplies = async() => {
-            const fetchReplies = await postService.getReplies(thread.postNum, 'threads')
-            const fetchedReplies = fetchReplies.data.map(reply => reply.postNum)
+            const fetchReplies = await postService.getReplies(thread.post_num, 'threads')
+            const fetchedReplies = fetchReplies.data
             
             // console.log('replies:', fetchedReplies)
             setReplies(fetchedReplies)
@@ -30,7 +30,7 @@ const ThreadNonMemo = ({ thread }) => {
 
     const getCommentsHook = () => {
         const fetchComments = async() => {
-            let fetchedComments = await postService.getComments(thread.postNum)
+            let fetchedComments = await postService.getComments(thread.post_num)
             fetchedComments = fetchedComments.data
             
             // console.log('comments:', fetchedComments)
@@ -42,7 +42,7 @@ const ThreadNonMemo = ({ thread }) => {
 
     const getThreadDataHook = () => {
         const fetchData = async() => {
-            let fetchedData = await postService.getThreadData(thread.postNum)
+            let fetchedData = await postService.getThreadData(thread.post_num)
             fetchedData = fetchedData.data
 
             setData(fetchedData)
@@ -50,9 +50,9 @@ const ThreadNonMemo = ({ thread }) => {
         fetchData()
     }
 
-    useEffect(getCommentsHook, [thread.postNum])
-    useEffect(getRepliesHook, [thread.postNum])
-    useEffect(getThreadDataHook, [thread.postNum])
+    useEffect(getCommentsHook, [thread.post_num])
+    useEffect(getRepliesHook, [thread.post_num])
+    useEffect(getThreadDataHook, [thread.post_num])
 
     // console.log('thread rerendered?')
 
@@ -60,21 +60,36 @@ const ThreadNonMemo = ({ thread }) => {
         <>
             <div className="thread">
                 <FormContextProvider 
-                    parentThread={thread.postNum} 
-                    parent={thread.postNum}
+                    parentThread={thread.post_num} 
+                    parent={thread.post_num}
                     parentType={'thread'}
                 >
                     <NavRow threadData={data} type="top"></NavRow>
                     <div className="threadContainer">
                         <div className="postContainer opContainer">
-                            <div id={thread.postNum} className="post op">
-                                <File url={thread.url} filename={thread.filename} dimensions={thread.dimensions} thumbnailURL={thread.thumbnail250URL} filetype={thread.filetype}></File>
-                                <PostInfo date={thread.date} postNum={thread.postNum} replies={replies} postType={'thread'}></PostInfo>
-                                <PostText text={thread.text}></PostText>
+                            <div id={thread.post_num} className="post op">
+                                <File 
+                                    url={thread.post_url} 
+                                    filename={thread.post_filename} 
+                                    dimensions={thread.post_dimensions} 
+                                    thumbnailURL={thread.thumbnail250URL} 
+                                    filetype={thread.filetype}>
+                                </File>
+                                <PostInfo 
+                                    date={thread.post_date} 
+                                    postNum={thread.post_num} 
+                                    replies={replies} 
+                                    postType={'thread'}>
+                                </PostInfo>
+                                <PostText text={thread.post_text}></PostText>
                             </div>
                         </div>
 
-                        <ReplyForm getCommentsHook={getCommentsHook} getRepliesHook={getRepliesHook} getThreadDataHook={getThreadDataHook}></ReplyForm>
+                        <ReplyForm 
+                            getCommentsHook={getCommentsHook} 
+                            getRepliesHook={getRepliesHook} 
+                            getThreadDataHook={getThreadDataHook}>
+                        </ReplyForm>
                         <Posts posts={comments} viewType='thread'></Posts>
                     </div>
                     {/* this will have to go in some footer */}

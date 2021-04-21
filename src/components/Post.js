@@ -11,8 +11,8 @@ const PostNonMemo = ({ post }) => {
     const getRepliesHook = () => {
         let isMounted = true
         const fetchReplies = async() => {
-            const fetchReplies = await postService.getReplies(post.postNum, 'comment')
-            const fetchedReplies = fetchReplies.data.map(reply => reply.postNum)
+            const fetchReplies = await postService.getReplies(post.post_num, 'comment')
+            const fetchedReplies = fetchReplies.data.map(reply => reply.post_num)
             
             // console.log('replies:', fetchedReplies)
             if(isMounted)
@@ -23,19 +23,24 @@ const PostNonMemo = ({ post }) => {
         return () => { isMounted = false}
     }
 
-    useEffect(getRepliesHook, [post.postNum])
+    useEffect(getRepliesHook, [post.post_num])
 
-    const fileElement = post.url === undefined ?
+    const fileElement = post.post_url === undefined ?
         <></>
-        :   <File url={post.url} filename={post.filename} dimensions={post.dimensions} thumbnailURL={post.thumbnail125URL} filetype={post.filetype}></File>
+        :   <File url={post.post_url} 
+                filename={post.post_filename} 
+                dimensions={post.post_dimensions} 
+                thumbnailURL={post.thumbnail125URL} 
+                filetype={post.filetype}>
+            </File>
 
     return (
-        <div id={post.postNum} className="postContainer replyContainer">
+        <div id={post.post_num} className="postContainer replyContainer">
             <div className="sideArrows">&gt;&gt;</div>
             <div className="post reply">
-                <PostInfo date={post.date} postNum={post.postNum} replies={replies} postType={'comment'}></PostInfo>
+                <PostInfo date={post.post_date} postNum={post.post_num} replies={replies} postType={'comment'}></PostInfo>
                 {fileElement}
-                <PostText text={post.text}></PostText>
+                <PostText text={post.post_text}></PostText>
             </div>
         </div>
     )

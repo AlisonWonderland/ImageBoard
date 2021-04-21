@@ -1,7 +1,15 @@
 const threadsRouter = require('express').Router()
 const { memcachedMiddleware, validMimeType, initUploadData, checkCredentials } = require('../utils/middleware')
 const Comment = require('../models/Comment')
-const Thread = require('../models/Thread')
+const { Thread, 
+    getThreads, 
+    createThread ,
+    getThreadReplies,
+    getThreadData,
+    getThreadComments,
+    getCatalogThreads,
+    getThread
+} = require('../models/Thread')
 const config = require('../config/config')
 
 const uploadService = require('../services/upload')
@@ -9,72 +17,77 @@ const uploadService = require('../services/upload')
 const { upload } = require('../utils/generator')
 const Admin = require('../models/Admin')
 
+// TODO Test and remove asyncs
+// try block
+
 // this probably wont be called as often as the others. so caching it for 60 seconds
-threadsRouter.get('/', memcachedMiddleware(6), async(req, res) => {
-    const threads = await Thread.find({})
-        .populate('replies', { text: 1, postNum: 1 })
-    res.json(threads)
+threadsRouter.get('/', memcachedMiddleware(2), (req, res) => {
+    getThreads(res)
 })
 
+
+// TODO TEST, look at postman response
 threadsRouter.get('/:threadNum/replies', memcachedMiddleware(2), async(req, res) => {
     const threadNum = req.params.threadNum
-    const searchedThread = await Thread.findOne({postNum: threadNum})
-    const threadReplies = await Comment.find({"_id": {"$in": searchedThread.replies}})
+    // const searchedThread = await Thread.findOne({postNum: threadNum})
+    // const threadReplies = await Comment.find({"_id": {"$in": searchedThread.replies}})
+    getThreadReplies(res, threadNum)
 
-    res.status(200).send(threadReplies)
+
+    // res.status(200).send(threadReplies)
 })
 
-threadsRouter.get('/:threadNum/data', memcachedMiddleware(2), async(req, res) => {
-    let data = {}
-    const thread = await Thread.findOne({postNum: req.params.threadNum})
-    data.numComments =  thread.numComments
-    data.numImages = thread.numImages
-    // console.log(data.numImages)
-    // unique posters
+threadsRouter.get('/:threadNum/data', memcachedMiddleware(2), (req, res) => {
+    // let data = {}
+    // const thread = await Thread.findOne({postNum: req.params.threadNum})
+    // data.numComments =  thread.numComments
+    // data.numImages = thread.numImages
+    // // console.log(data.numImages)
+    // // unique posters
 
-    res.json(data)
-})
-
-threadsRouter.get('/:threadNum/comments', memcachedMiddleware(2), async(req, res) => {
+    // res.json(data)
     const threadNum = req.params.threadNum
-    const searchedThread = await Thread.findOne({postNum: threadNum})
-    const threadComments = await Comment.find({"_id": {"$in": searchedThread.comments}})
+    getThreadData(res, threadNum)
+})
 
-    res.status(200).send(threadComments)
+threadsRouter.get('/:threadNum/comments', memcachedMiddleware(2), (req, res) => {
+    const threadNum = req.params.threadNum
+    // const searchedThread = await Thread.findOne({postNum: threadNum})
+    // const threadComments = await Comment.find({"_id": {"$in": searchedThread.comments}})
+
+    // res.status(200).send(threadComments)
+    getThreadComments(res, threadNum)
 })
 
 // same thought as with '/'
-threadsRouter.get('/catalogThreads', memcachedMiddleware(6), async(req, res) => {
-    const threads = await Thread.find({}, {thumbnail125URL: 1, text:1, numComments: 1, numImages: 1, postNum: 1, date: 1})
+threadsRouter.get('/catalogThreads', memcachedMiddleware(2), async(req, res) => {
+    // const threads = await Thread.find({}, {thumbnail125URL: 1, text:1, numComments: 1, numImages: 1, postNum: 1, date: 1})
 
-    res.status(200).send(threads)
+    // res.status(200).send(threads)
+    getCatalogThreads(res)
 })
 
-threadsRouter.get('/:threadNum', memcachedMiddleware(6), async(req, res) => {
+threadsRouter.get('/:threadNum', memcachedMiddleware(2), async(req, res) => {
     const threadNum = req.params.threadNum
-    const searchedThread = await Thread.findOne({postNum: threadNum})
+    // const searchedThread = await Thread.findOne({postNum: threadNum})
 
-    res.status(200).send(searchedThread)
+    // res.status(200).send(searchedThread)
+    getThread(res, threadNum)
 })
 
 
-threadsRouter.post('/', upload.single('file'), validMimeType, initUploadData, async(req, res, next) => {
-    const numDocs = await Thread.countDocuments({})
-    const numComments = await Comment.countDocuments({})
-   
+threadsRouter.post('/', upload.single('file'), validMimeType, initUploadData, async(req, res, next) => {   
     const uService = new uploadService(req.body.uploadData)
     const fileData = await uService.generateFileData()
-    
-    const thread = new Thread({
+
+    const threadData = {
         ...fileData,
-        text: req.body.text,
-        date: new Date(Date.now()),
-        postNum: numDocs + numComments + 1
-    })
+        post_text: req.body.text,
+        post_date: new Date().toISOString().slice(0, 19).replace('T', ' ')
+    }
 
-    const savedThread = await thread.save()
-
-    res.status(201).json(savedThread)
+    console.log('thread data:', threadData)
+    createThread(res, threadData)
 })
 
 // will need JWT verification in the future
@@ -127,7 +140,7 @@ threadsRouter.delete('/:threadNum/', async(req, res, next) => {
     res.status(401).end()
 })
 
-
+// TODO MYSQL VERSION
 threadsRouter.delete('/:threadNum/comments', async(req, res, next) => {
     // console.log(req)
     const threadNum = req.params.threadNum

@@ -6,28 +6,28 @@ import PostInfo from './PostInfo'
 
 const HomePost = ({ post }) => {
 
-    const fileElement = post.url === undefined ?
+    const fileElement = post.post_url === undefined ?
         <></>
         :   <File 
-                url={post.url} 
-                filename={post.filename} 
-                dimensions={post.dimensions} 
+                url={post.post_url} 
+                filename={post.post_filename} 
+                dimensions={post.post_dimensions} 
                 thumbnailURL={post.thumbnail125URL} 
                 filetype={post.filetype}>    
             </File>
 
     return (
-        <div id={post.postNum} className="postContainer replyContainer">
+        <div id={post.post_num} className="postContainer replyContainer">
             <div className="sideArrows">&gt;&gt;</div>
             <div className="post reply">
                 <PostInfo 
-                    date={post.date} 
-                    postNum={post.postNum} 
+                    date={post.post_date} 
+                    postNum={post.post_num} 
                     replies={[]} 
                     postType={'comment'}>
                 </PostInfo>
                 {fileElement}
-                <PostText text={post.text}></PostText>
+                <PostText text={post.post_text}></PostText>
             </div>
         </div>
     )

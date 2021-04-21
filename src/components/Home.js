@@ -15,7 +15,7 @@ const Home = () => {
             
             setThreads(fetchedThreads)
             // console.log('threads reset')
-            // console.log('threads:', fetchThreads)
+            // console.log('threads:', fetchedThreads)
         }
         fetchThreads()
     }

@@ -1,7 +1,7 @@
 const ThreadData = ({ threadData }) => {
     
     return (
-        <span>Comments: {threadData.numComments} / Images: {threadData.numImages}</span>
+        <span>Comments: {threadData.num_comments} / Images: {threadData.num_images}</span>
     )
 }
 

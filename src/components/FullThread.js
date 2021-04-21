@@ -26,7 +26,7 @@ const FullThread = () => {
     return (
         <>
             {
-                thread.postNum === undefined ? 
+                thread.post_num === undefined ? 
                 <></>
                 : <Thread thread={thread}></Thread>
             }

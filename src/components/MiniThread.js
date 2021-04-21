@@ -6,11 +6,11 @@ const MiniThreads = ({ thread }) => {
     
     return (
         <div className="miniThread">
-            <Link to={`/thread/${thread.postNum}`}>
+            <Link to={`/thread/${thread.post_num}`}>
                 <img src={thread.thumbnail125URL} alt="125 pixel thumbnail"></img>
             </Link>
-            <div>Comments: {thread.numComments} | Images: {thread.numImages}</div>
-            <div className="textPreview">{thread.text}</div>
+            <div>Comments: {thread.num_comments} | Images: {thread.num_images}</div>
+            <div className="textPreview">{thread.post_text}</div>
         </div>
     )
 }

@@ -15,6 +15,25 @@ const commentRouter = require('./controllers/comment')
 const authenticationRouter = require('./controllers/authentication')
 const adminRouter = require('./controllers/admin')
 
+const mysql = require('mysql')
+const db = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : '',
+    database: 'imageboard'
+});
+   
+db.connect(function(err) {
+    if (err) {
+      console.error('error connecting: ' + err.stack);
+      return;
+    }
+   
+    console.log('connected as id ' + db.threadId);
+});
+
+global.db = db
+
 const mongoUrl = config.MONGODB_URI
 
 logger.info('connecting to', mongoUrl)
@@ -33,7 +52,6 @@ app.use(bodyParser.urlencoded({
     extended: true
 }))
 // app.use(middleware.requestLogger)
-
 app.use('/api/threads', threadsRouter)
 app.use('/api/comment', commentRouter)
 app.use('/api/authentication', authenticationRouter)

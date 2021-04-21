@@ -1,7 +1,7 @@
 const commentRouter = require('express').Router()
 const { memcachedMiddleware, validMimeType, initUploadData, checkCredentials } = require('../utils/middleware')
-const Thread = require('../models/Thread')
-const Comment = require('../models/Comment')
+const { Thread }= require('../models/Thread')
+const { Comment } = require('../models/Comment')
 const Admin = require('../models/Admin')
 const config = require('../config/config')
 const ObjectId = require('mongodb').ObjectID;

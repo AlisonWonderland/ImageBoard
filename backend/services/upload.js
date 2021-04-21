@@ -37,11 +37,11 @@ class UploadService {
     
         // extension needed? extension: this.extension
         let data = {
-            url: url,
+            post_url: url,
             filetype: this.filetype,
-            id: this.id,
-            dimensions: dimensions,
-            filename: this.filename
+            post_id: this.id,
+            post_dimensions: JSON.stringify(dimensions),
+            post_filename: this.filename
         }
 
         if(this.postType === "thread"){

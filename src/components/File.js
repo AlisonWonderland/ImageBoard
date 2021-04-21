@@ -5,6 +5,7 @@ const File = (fileInfo) => {
     const [ showFullSize, setShowFullSize ] = useState(false)
     const { windowHeight, windowWidth } = useWindowDimensions()
     const [ showThumbnail, setShowThumbnail ] = useState(true)
+    const fileDimensions = JSON.parse(fileInfo.dimensions)
 
     const handleThumbnailClick = (e) => {
         e.preventDefault()
@@ -39,7 +40,11 @@ const File = (fileInfo) => {
 
     if(showFullSize)
         if(fileInfo.filetype === "image")
-            fullSizeContent = <img className="thumbnail-exp" src={fileInfo.url} alt="" style={getMaxDimensions(fileInfo.dimensions)}></img>
+            fullSizeContent = <img 
+                                className="thumbnail-exp" 
+                                src={fileInfo.url} alt="" 
+                                style={getMaxDimensions(fileDimensions)}>
+                                </img>
         else
             fullSizeContent =   <video controls loop autoPlay muted className="vid-exp">
                                     <source src={fileInfo.url} type="video/webm" />
@@ -49,7 +54,10 @@ const File = (fileInfo) => {
     return (
         <div className="file">
             <div className="fileInfo">
-                File: <a href={fileInfo.url} target="_blank" rel="noreferrer">{fileInfo.filename}</a> ({fileInfo.dimensions.width}x{fileInfo.dimensions.height})
+                File: <a href={fileInfo.url} target="_blank" rel="noreferrer">
+                        {fileInfo.filename}
+                    </a> 
+                    ({fileDimensions.width}x{fileDimensions.height})
             </div>
             <a href={fileInfo.url} onClick={handleThumbnailClick}>
                 <img className="thumbnail" src={fileInfo.thumbnailURL} alt=""style={{display: showThumbnail ? "": "none"}} />
