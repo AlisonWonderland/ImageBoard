@@ -1,12 +1,9 @@
 require('express-async-errors') 
 
-const config = require('./config/config')
-const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 
@@ -20,7 +17,8 @@ const db = mysql.createConnection({
     host     : 'localhost',
     user     : 'root',
     password : '',
-    database: 'imageboard'
+    database: 'imageboard',
+    multipleStatements: true
 });
    
 db.connect(function(err) {
@@ -29,18 +27,10 @@ db.connect(function(err) {
       return;
     }
    
-    console.log('connected as id ' + db.threadId);
+    console.log('connected to mysql as id ' + db.threadId);
 });
 
 global.db = db
-
-const mongoUrl = config.MONGODB_URI
-
-logger.info('connecting to', mongoUrl)
-
-mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
-    .then(() => logger.info('Connected to MongoDB'))
-    .catch(err => logger.error('Error:', err))
 
 // need to figure out which ones to use
 app.use(cors())

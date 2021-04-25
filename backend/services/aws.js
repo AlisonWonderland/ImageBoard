@@ -10,16 +10,25 @@ const s3 = new AWS.S3({
 
 
 module.exports = {
-    uploadToS3: async function(file, filename, extension, mimetype) {
+    uploadToS3: async function(file, filename, extension) {
+        let mimetype = ''
+
+        // have to do this because thumbnails are being passed through here
+        // and their mimetypes aren't stored in uploadService
+        if(extension !== 'webm') {
+            mimetype = `image/${extension}`
+        }
+        else {
+            mimetype = 'video/webm'
+        }
+
         let uploadParams = {
             Bucket: 'photoboardbucket', 
-            Key: '', 
-            Body: '', 
+            Key: filename + '.' + extension, 
+            Body: file, 
             ContentType: mimetype,
             CacheControl: 'public, max-age=3600'
         };
-        uploadParams.Body = file;
-        uploadParams.Key = filename + '.' + extension;
     
         const response = await s3.upload(uploadParams).promise();
         return response.Location

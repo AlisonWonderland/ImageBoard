@@ -1,4 +1,4 @@
-export function generateFormData(file, replyText, isReply, parent, parentType) {
+export function generateFormData(file, replyText, isReply, parent, parentType, parentThread) {
     let formData = new FormData();
 
     if(file !== undefined || file !== null)
@@ -9,6 +9,7 @@ export function generateFormData(file, replyText, isReply, parent, parentType) {
     formData.append('postType', isReply ? 'reply' : 'comment');
     formData.append('parent', parent);
     formData.append('parentType', parentType);
+    formData.append('parentThread', parentThread);
 
     return formData
 }

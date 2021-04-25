@@ -8,6 +8,7 @@ import Textarea from './Textarea'
 const ReplyForm = ({getCommentsHook, getRepliesHook, getThreadDataHook}) => {
     const { parent, 
         parentType, 
+        parentThread,
         isReply,
         showForm, 
         setShowForm,
@@ -16,7 +17,8 @@ const ReplyForm = ({getCommentsHook, getRepliesHook, getThreadDataHook}) => {
     } = useContext(FormContext)
 
     const [ file, setFile ] = useState(null)
-    // const [ replyText, setReplyText ] = useState(`>>${parent} \n`)
+
+    console.log('parent', parent)
 
     const handleSubmission = (e) => {
         e.preventDefault();
@@ -26,7 +28,7 @@ const ReplyForm = ({getCommentsHook, getRepliesHook, getThreadDataHook}) => {
             return
         }
 
-        const formData = generateFormData(file, replyText, isReply, parent, parentType);
+        const formData = generateFormData(file, replyText, isReply, parent, parentType, parentThread);
 
         postService.upload(formData, isReply ? 'reply' : 'comment')
         .then(response => {
@@ -47,10 +49,6 @@ const ReplyForm = ({getCommentsHook, getRepliesHook, getThreadDataHook}) => {
         setReplyText('')
         setShowForm(false)
     }
-
-    // const handleReplyTextChange = (e) => {
-    //     setReplyText(e.target.value)
-    // }
 
     const handleFileChange = (e) => {
         console.log('files', e.target.files[0])

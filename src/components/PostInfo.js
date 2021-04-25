@@ -6,7 +6,7 @@ const PostInfo = (postInfo) => {
     const { handleFormOpen } = useContext(FormContext)
     
     const handleReplyClick = (e) => {
-        handleFormOpen(postInfo.post_num, postInfo.postType, true)
+        handleFormOpen(postInfo.postNum, postInfo.postType, true)
     }
 
     const formatDate = (threadDate) => {
@@ -24,7 +24,6 @@ const PostInfo = (postInfo) => {
         localDate = localDate.replace(/\s/g, ' ');
         return localDate + ' '
     }
-    // console.log('replies in postinfo:', postInfo.replies, 'and num:', postInfo.post_num)
 
     return (
         <div className="postInfo">

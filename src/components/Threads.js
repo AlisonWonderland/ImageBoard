@@ -1,4 +1,5 @@
 import HomeThread from './HomeThread'
+import { v4 as uuidv4 } from 'uuid';
 
 const Threads = ({ threads }) => {
     console.log('threads befor home:', threads)
@@ -6,7 +7,7 @@ const Threads = ({ threads }) => {
         <div className="threads">
             {threads.map(thread => {
                 return (
-                    <HomeThread key={thread.post_id} thread={thread} />
+                    <HomeThread key={uuidv4()} thread={thread} />
                 )
             })}
         </div>

@@ -1,77 +1,47 @@
 const threadsRouter = require('express').Router()
 const { memcachedMiddleware, validMimeType, initUploadData, checkCredentials } = require('../utils/middleware')
-const Comment = require('../models/Comment')
-const { Thread, 
+const { 
     getThreads, 
     createThread ,
     getThreadReplies,
     getThreadData,
     getThreadComments,
     getCatalogThreads,
-    getThread
+    getThread,
+    deleteSpecificThreads
 } = require('../models/Thread')
-const config = require('../config/config')
 
 const uploadService = require('../services/upload')
 
 const { upload } = require('../utils/generator')
-const Admin = require('../models/Admin')
 
-// TODO Test and remove asyncs
-// try block
-
-// this probably wont be called as often as the others. so caching it for 60 seconds
 threadsRouter.get('/', memcachedMiddleware(2), (req, res) => {
     getThreads(res)
 })
 
 
 // TODO TEST, look at postman response
-threadsRouter.get('/:threadNum/replies', memcachedMiddleware(2), async(req, res) => {
+threadsRouter.get('/:threadNum/replies', memcachedMiddleware(2), (req, res) => {
     const threadNum = req.params.threadNum
-    // const searchedThread = await Thread.findOne({postNum: threadNum})
-    // const threadReplies = await Comment.find({"_id": {"$in": searchedThread.replies}})
     getThreadReplies(res, threadNum)
-
-
-    // res.status(200).send(threadReplies)
 })
 
 threadsRouter.get('/:threadNum/data', memcachedMiddleware(2), (req, res) => {
-    // let data = {}
-    // const thread = await Thread.findOne({postNum: req.params.threadNum})
-    // data.numComments =  thread.numComments
-    // data.numImages = thread.numImages
-    // // console.log(data.numImages)
-    // // unique posters
-
-    // res.json(data)
     const threadNum = req.params.threadNum
     getThreadData(res, threadNum)
 })
 
 threadsRouter.get('/:threadNum/comments', memcachedMiddleware(2), (req, res) => {
     const threadNum = req.params.threadNum
-    // const searchedThread = await Thread.findOne({postNum: threadNum})
-    // const threadComments = await Comment.find({"_id": {"$in": searchedThread.comments}})
-
-    // res.status(200).send(threadComments)
     getThreadComments(res, threadNum)
 })
 
-// same thought as with '/'
-threadsRouter.get('/catalogThreads', memcachedMiddleware(2), async(req, res) => {
-    // const threads = await Thread.find({}, {thumbnail125URL: 1, text:1, numComments: 1, numImages: 1, postNum: 1, date: 1})
-
-    // res.status(200).send(threads)
+threadsRouter.get('/catalogThreads', memcachedMiddleware(2), (req, res) => {
     getCatalogThreads(res)
 })
 
-threadsRouter.get('/:threadNum', memcachedMiddleware(2), async(req, res) => {
+threadsRouter.get('/:threadNum', memcachedMiddleware(2), (req, res) => {
     const threadNum = req.params.threadNum
-    // const searchedThread = await Thread.findOne({postNum: threadNum})
-
-    // res.status(200).send(searchedThread)
     getThread(res, threadNum)
 })
 
@@ -86,75 +56,14 @@ threadsRouter.post('/', upload.single('file'), validMimeType, initUploadData, as
         post_date: new Date().toISOString().slice(0, 19).replace('T', ' ')
     }
 
-    console.log('thread data:', threadData)
     createThread(res, threadData)
 })
 
-// will need JWT verification in the future
-
-// delete all route
-// there is an error with invalid deletion routes
-threadsRouter.delete('/', async(req, res, next) => {
-        // console.log(req)
-        console.log(config.PIN, 'noo')
-        if(req.body.pin === config.PIN) {
-            await Thread.deleteMany({})
-            console.log('threads deletion')
-            res.status(200).end()
-        }
-    
-        res.status(401).end()
-})
 
 threadsRouter.delete('/multiple', checkCredentials, async(req, res, next) => {
     const threadsToDelete = req.body.postNums
-    console.log('threadsToDelete:', threadsToDelete)
-    console.log('body:', req.body)
-
-    const admin = await Admin.findOne({username: req.body.payload.username})
-    admin.threadsDeleted += threadsToDelete.length
-    admin.totalPostsDeleted += threadsToDelete.length
-    admin.lastDeletionDate = new Date()
-    await admin.save()
-
-    console.log('admin after deletes', admin)
-    
-    // await Comment.deleteMany({"parentThread": {"$in": threadsToDelete}})
-    // await Thread.deleteMany({"postNum": {"$in": threadsToDelete}})
-
-    res.status(200).end()
-
-    // res.status(401).end()
-})
-
-threadsRouter.delete('/:threadNum/', async(req, res, next) => {
-    const threadNum = req.params.threadNum
-    // console.log(req)
-    console.log(config.PIN)
-    if(req.body.pin === config.PIN) {
-        await Thread.deleteOne({postNum: threadNum})
-        console.log(`thread ${threadNum} deleted`)
-        res.status(200).end()
-    }
-
-    res.status(401).end()
-})
-
-// TODO MYSQL VERSION
-threadsRouter.delete('/:threadNum/comments', async(req, res, next) => {
-    // console.log(req)
-    const threadNum = req.params.threadNum
-
-    console.log(config.PIN)
-    if(req.body.pin === config.PIN) {
-        const searchedThread = await Thread.findOne({postNum: threadNum})
-        await Comment.deleteMany({"_id": {"$in": searchedThread.comments}})
-    
-        console.log(`thread ${threadNum} comments deleted`)
-        res.status(200).end()
-    }
-
-    res.status(401).end()
+    const adminUsername = req.body.payload.username
+    deleteSpecificThreads(res, threadsToDelete, adminUsername)
 })
 
 module.exports = threadsRouter

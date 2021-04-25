@@ -108,6 +108,8 @@ code {
 .thread {
     clear: both;
     margin: 0;
+    height: calc(100vh - 51.6px);
+    position: relative;
 }
 
 .threadContainer, .homeThread {
@@ -248,9 +250,14 @@ div.reply {
     justify-content: space-between;
 }
 
+.row ~ .row {
+    position: absolute;
+    bottom: 0;
+}
+
 .row {
     border-top: 1px solid #b9b9b9;
-    border-bottom: 1px solid #b9b9b9;
+    border-bottom: 1px solid #2b2626;
     padding: 25px 0px 25px 0px;
     width: 100%;
     display: flex;
@@ -261,6 +268,7 @@ div.reply {
     padding: 0px 15px 0px 15px;
 }
 
+
 .commentLink {
     font-size: 20px;
 }
@@ -268,8 +276,9 @@ div.reply {
 .miniThreads {
     height: 100%;
     max-width: 100%;
+    padding-top: 50px;
     display: flex;
-    justify-content: space-around;
+    /* justify-content: space-around; */
     align-items: center;
     flex-wrap: wrap;
 }

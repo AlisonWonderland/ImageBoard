@@ -10,7 +10,7 @@ const ThreadsCatalog = () => {
             let fetchedData = await postService.getThreadsData()
             fetchedData = fetchedData.data
 
-            console.log('minis:', fetchedData)
+            // console.log('minis:', fetchedData)
             setThreads(fetchedData)
         }
         fetchData()

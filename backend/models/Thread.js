@@ -1,208 +1,135 @@
-const mongoose = require('mongoose')
-const uniqueValidator = require('mongoose-unique-validator')
-
-mongoose.set('useFindAndModify', false)
-
-const threadSchema = new mongoose.Schema({
-    text: {
-        type:String,
-        required: true
-    },
-    url: {
-        type:String,
-        required: true
-    },
-    thumbnail250URL: {
-        type:String,
-        required: true
-    },
-    thumbnail125URL: {
-        type:String,
-        required: true
-    },
-    dimensions: {
-        type: Map,
-        of: String,
-        required: true
-    },
-    date: {
-        type:Date,
-        required: true
-    },
-    filetype: {
-        type:String,
-        required: true
-    },
-    filename: {
-        type:String,
-        required: true
-    },
-    id: {
-        type:String,
-        required: true
-    },
-    postNum: {
-        type:Number,
-        required: true
-    },
-    numComments: {
-        type: Number,
-        default: 0
-    },
-    numImages: {
-        type: Number,
-        default: 0
-    },
-    comments: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Comment'
-        }
-    ],
-    replies: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Comment'
-        }
-    ]
-})
-
-threadSchema.plugin(uniqueValidator)
-
-threadSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id.toString()
-        delete returnedObject._id
-        delete returnedObject.__v
-        // the passwordHash should not be revealed
-    }
-})
-
-const Thread = mongoose.model('Thread', threadSchema)
-
 module.exports = {
-    Thread,
     getThreads: (res) => {
         let query = "SELECT * FROM threads;"
         db.query(query, (err, results) => {
             if(err) {
-                throw Error(err)
+                res.status(500).send(err)
             }
             else {
-                // console.log(results)
                 res.json(results)
             }
         })
-    },
+    }, 
     getThreadReplies: (res, threadNum) => {
-        let query = `SELECT replies FROM threads WHERE post_num = ${threadNum};`
+        let query = `SELECT child_post_num FROM replies WHERE parent_post_num = ${threadNum};`
         
         db.query(query, (err, results) => {
             if(err) {
-                throw Error(err)
+                res.status(500).send(err)
             }
             else {
-                // console.log(results)
-                if(results[0].replies === null) {
-                    res.json([])
-                }
-                else {
-                    /// needs to be changed in frontend algong with comments
-                    res.json(results)
-                }
+                res.json(results.map(result => result.child_post_num))
             }
         })
-    },
+    }, 
     getThreadData: (res, threadNum) => {
-        let query = `SELECT num_images, num_comments FROM threads WHERE post_num = ${threadNum};`
+        let query = `SELECT (SELECT COUNT(*) FROM comments WHERE parentThread = ${threadNum}) as num_comments,
+            (SELECT COUNT(*) FROM comments WHERE parentThread = ${threadNum} AND hasImage = TRUE) as num_images;`
 
         db.query(query, (err, results) => {
             if(err) {
-                throw Error(err)
+                res.status(500).send(err)
             }
             else {
-                // console.log(results)
                 res.json(results[0])
             }
         })
     },
     getThreadComments: (res, threadNum) => {
-        let query = `SELECT comments FROM threads WHERE post_num = ${threadNum};`
+        let query = `SELECT * FROM comments WHERE parentThread = ${threadNum};`
 
         db.query(query, (err, results) => {
             if(err) {
-                throw Error(err)
+                res.status(500).send(err)
             }
             else {
-                // console.log(results)
-                if(results[0].comments === null) {
-                    res.json([])
-                }
-                else {
-                    res.json(results)
-                }
-            }
-        }) 
-    },
-    getCatalogThreads: (res) => {
-        let query = `SELECT thumbnail125URL, post_text, num_comments, num_images, post_num, post_date FROM threads;`
-
-        db.query(query, (err, results) => {
-            if(err) {
-                throw Error(err)
-            }
-            else {
-                // console.log(results)
                 res.json(results)
             }
         }) 
-    },
-    getThread: (res, threadNum) => {
-        let query = `SELECT * FROM threads WHERE post_num = ${threadNum};`
+    }, //tested
+    getCatalogThreads: (res) => {
+        let query = `SELECT threads.post_num,
+        threads.post_text,
+        threads.thumbnail125URL,
+        threads.post_date,
+        COUNT(comments.parentThread) AS num_comments, 
+        COUNT(case comments.hasImage when TRUE then 1 else null end ) AS num_images
+        FROM comments 
+        RIGHT JOIN threads ON threads.post_num = comments.parentThread 
+        GROUP BY threads.post_num, threads.post_text, threads.thumbnail125URL, threads.post_date;
+        `
+
         db.query(query, (err, results) => {
             if(err) {
-                throw Error(err)
+                res.status(500).send(err)
             }
             else {
-                // console.log(results)
+                res.json(results)
+            }
+        }) 
+    }, 
+    getThread: (res, threadNum) => {
+        let query = `SELECT * FROM threads WHERE post_num = ${threadNum};`
+       
+        db.query(query, (err, results) => {
+            if(err) {
+                res.status(500).send(err)
+            }
+            else {
                 res.json(results[0])
             }
         })
     },
     deleteAllThreads: (res) => {
         let query = `DELETE FROM threads;`
+        
         db.query(query, (err, results) => {
             if(err) {
-                throw Error(err)
+                res.status(500).send(err)
+            }
+            else {
+                res.status(200).end()
             }
         })
     },
-    deleteSpecificThreads: (res, threadNums) => {
-        let query = `DELETE FROM threads WHERE post_num IN (${threadNums}));`
+    deleteSpecificThreads: (res, threadNums, adminUsername) => {
+        let query = `DELETE FROM threads WHERE post_num IN (${threadNums});
+                DELETE FROM comments WHERE parentThread IN (${threadNums});
+                DELETE FROM replies WHERE parent_post_num IN (${threadNums});
+                UPDATE admins SET threadsDeleted = threadsDeleted + ${threadNums.length} WHERE username = '${adminUsername}';
+                UPDATE admins SET totalPostsDeleted = totalPostsDeleted + ${threadNums.length} WHERE username = '${adminUsername}';
+                UPDATE admins SET lastDeletionDate = '${new Date().toISOString().slice(0, 19).replace('T', ' ')}' WHERE username = '${adminUsername}';`
+        
         db.query(query, (err, results) => {
             if(err) {
-                throw Error(err)
+                res.status(500).send(err)
+            }
+            else {
+                res.status(200).end()
             }
         })
     },
     deleteSpecificThread: (res, threadNum) => {
-        let query = `DELETE FROM threads WHERE post_num = (${threadNum}));`
+        let query = `DELETE FROM threads WHERE post_num = (${threadNum});`
+        
         db.query(query, (err, results) => {
             if(err) {
-                throw Error(err)
+                res.status(500).send(err)
+            }
+            else {
+                res.status(200).end()
             }
         })
     },
     createThread: (res, threadData) => {
-        const countPosts = `SELECT(SELECT COUNT(*) FROM threads) + (SELECT COUNT(*) FROM comments) as total_posts;`
+        const countPosts = `UPDATE total_posts SET count = @count := count + 1; SELECT @count;`
 
         db.query(countPosts, (err, results) => {
             if(err) {
-                throw Error('Error counting posts')
+                res.status(500).send(err) 
             }
             else {
-                threadData.post_num = results[0].total_posts + 1
-                // console.log(results)
+                threadData.post_num = results[1][0]['@count']
                 let addThread = `INSERT INTO threads (
                         post_num, 
                         post_text,
@@ -229,9 +156,10 @@ module.exports = {
                         '${threadData.post_id}'
                     );
                 `
+                
                 db.query(addThread, (err, results) => {
                     if(err) {
-                        throw Error(err) 
+                        res.status(500).send(err) 
                     }
                     else {
                         res.status(201).json(threadData)

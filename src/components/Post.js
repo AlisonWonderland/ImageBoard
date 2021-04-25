@@ -12,8 +12,9 @@ const PostNonMemo = ({ post }) => {
         let isMounted = true
         const fetchReplies = async() => {
             const fetchReplies = await postService.getReplies(post.post_num, 'comment')
-            const fetchedReplies = fetchReplies.data.map(reply => reply.post_num)
+            const fetchedReplies = fetchReplies.data
             
+            // console.log('replies response:', fetchReplies)
             // console.log('replies:', fetchedReplies)
             if(isMounted)
                 setReplies(fetchedReplies)
@@ -25,7 +26,7 @@ const PostNonMemo = ({ post }) => {
 
     useEffect(getRepliesHook, [post.post_num])
 
-    const fileElement = post.post_url === undefined ?
+    const fileElement = post.post_url === null ?
         <></>
         :   <File url={post.post_url} 
                 filename={post.post_filename} 

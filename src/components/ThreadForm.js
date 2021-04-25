@@ -15,7 +15,7 @@ const ThreadForm = ({ threads, setThreads }) => {
 
         postService.upload(formData, 'thread')
             .then(response => {
-                console.log('thread data', response)
+                // console.log('thread data', response)
                 setThreads(threads.concat(response.data))
                 
                 setSubmissionText('')

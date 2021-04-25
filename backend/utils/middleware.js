@@ -46,17 +46,13 @@ const checkCredentials = (req, res, next) => {
 
     let token = ''
     const authHeader = req.headers.authorization
-    console.log('header in middle', authHeader)
-    console.log('headers in middle', req.headers)
-    // console.log('headers stringified', JSON.stringify(req.headers));
-    // console.log('headers', req.headers);
-    // console.log('body', req.body, config.PIN, body.currentPassword)
 
     if (authHeader.startsWith("Bearer ")){
         token = authHeader.substring(7, authHeader.length);
         // might not need to pass in body
         req.body.token = token
         console.log('token from middle', token)
+        
         try{
             let payload = jwt.verify(token, config.PIN)
             req.body.payload = payload

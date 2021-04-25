@@ -1,14 +1,11 @@
-# ImageBoard
+# ImageBoard(MySQL version)
 
-A MERN stack web app where users can anonymously post messages and share images under certain thread topics. It currently supports jpg/jpeg, gif and webm formatted media.
-
-
-By working on this project I learned a variety of new technologies like AWS S3 and reinforced 
+A MySQL version of the original Imageboard app. It retains the same features and frontend as the original. Imageboard is a web app where users can anonymously post messages and share images under certain thread topics. It currently supports jpg/jpeg, gif and webm formatted media.
 
 ## Installation
-Clone repo
+Clone repo and check into this branch
 ```
-git clone https://github.com/AlisonWonderland/ImageBoard.git
+git clone -b mysql_implementation https://github.com/AlisonWonderland/ImageBoard.git
 ```
 
 Install dev dependencies in both root folder and backend using:
@@ -24,6 +21,12 @@ sudo apt install libmemcached-tools
 ```
 Here's a link for further installation options: https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-memcached-on-ubuntu-18-04
 
+
+Install MySQL
+```
+Follow steps here: https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04
+```
+
 ## Running the app
 
 First start up Memcached. Note that the app will still work without starting Memcached, but will cause a large delay in fetching data from the api.
@@ -32,6 +35,16 @@ sudo service memcached start
 ```
 
 A success message should appear.
+
+Next, start up MySQL
+```
+sudo service mysql start
+
+or use if you have socket issues
+
+sudo mkdir -p /var/run/mysqld; sudo chown mysql /var/run/mysqld
+sudo mysqld_safe --skip-grant-tables &
+```
 
 To start frontend, go to root directory and execute
 ```
@@ -49,7 +62,7 @@ npm start
 to run backend without nodemon
 
 ## Tech used
-* MongoDB
+* MySQL
     * To store comments and threads.
 * Express
 * React
